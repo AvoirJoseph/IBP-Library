@@ -16,7 +16,7 @@ export default function ReportsView({ books, patrons, transactions, showToast })
   const handleExecuteQuery = () => {
     let result = [];
     if (selectedQueryIndex === 0) {
-      // Overdue Loans & Calculated Fines
+      // Overdue Loans & Days Overdue
       result = transactions
         .filter((t) => t.status === 'Overdue')
         .map((t) => ({
@@ -24,7 +24,7 @@ export default function ReportsView({ books, patrons, transactions, showToast })
           Book_Title: t.bookTitle,
           Patron_Name: t.patronName,
           Due_Date: t.dueDate,
-          Estimated_Fine: '$3.50'
+          Days_Overdue: 14
         }));
     } else if (selectedQueryIndex === 1) {
       // Top Borrowed Items
@@ -36,14 +36,14 @@ export default function ReportsView({ books, patrons, transactions, showToast })
         Status: b.status
       }));
     } else {
-      // Patrons with Fine Balance > $0
+      // Active Borrowers & Loan Count
       result = patrons
-        .filter((p) => p.fineBalance > 0)
+        .filter((p) => p.borrowedCount > 0)
         .map((p) => ({
           Card_Number: p.cardNum,
           Patron_Name: p.name,
           Category: p.category,
-          Fine_Balance: `$${p.fineBalance.toFixed(2)}`,
+          Active_Loans: `${p.borrowedCount} items`,
           Status: p.status
         }));
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import Breadcrumbs from './components/Breadcrumbs';
 import DashboardView from './components/DashboardView';
 import CatalogView from './components/CatalogView';
 import CirculationView from './components/CirculationView';
@@ -28,12 +29,14 @@ export default function App() {
 
   // App UI States
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [circSubTab, setCircSubTab] = useState('checkout');
+  const [incomingBarcode, setIncomingBarcode] = useState('');
+  const [incomingPatron, setIncomingPatron] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('Main Library');
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false); // Default to clean classic Koha staff light theme
 
   // Search Bar States
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchCategory, setSearchCategory] = useState('catalog');
 
   // Modals & Selected Objects
   const [selectedBook, setSelectedBook] = useState(null);
@@ -62,19 +65,72 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Search Trigger Handler
-  const handlePerformSearch = () => {
-    if (!searchQuery) return;
-    if (searchCategory === 'patron') {
-      setActiveTab('patrons');
-    } else {
-      setActiveTab('catalog');
+  // Navigate module helper (used by launchpad, search bar, etc.)
+  const handleNavigateModule = (moduleId, subAction = null) => {
+    setActiveTab(moduleId);
+    if (moduleId === 'circulation' && subAction) {
+      setCircSubTab(subAction);
     }
+  };
+
+  // Top Search Bar Direct Handlers
+  const handleDirectCheckOut = (patronQuery) => {
+    setIncomingPatron(patronQuery);
+    setCircSubTab('checkout');
+    setActiveTab('circulation');
+    showToast(`Loading check out for patron: "${patronQuery}"`, 'info');
+  };
+
+  const handleDirectCheckIn = (barcode) => {
+    const tx = transactions.find(
+      (t) => t.itemBarcode === barcode.trim() && t.status !== 'Returned'
+    );
+    if (tx) {
+      handleCheckInItem(tx);
+      showToast(`Quick check-in: Returned "${tx.bookTitle}" (Barcode ${barcode})`, 'success');
+    } else {
+      setIncomingBarcode(barcode);
+      setCircSubTab('checkin');
+      setActiveTab('circulation');
+      showToast(`Loading check-in station for barcode "${barcode}"`, 'info');
+    }
+  };
+
+  const handleDirectRenew = (barcode) => {
+    const tx = transactions.find(
+      (t) => t.itemBarcode === barcode.trim() && t.status !== 'Returned'
+    );
+    if (tx) {
+      const parts = tx.dueDate.split('-');
+      const dueDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      dueDateObj.setDate(dueDateObj.getDate() + 14);
+      const newDue = dueDateObj.toISOString().split('T')[0];
+
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === tx.id ? { ...t, dueDate: newDue, status: 'Issued' } : t))
+      );
+      showToast(`Renewed "${tx.bookTitle}". New due date: ${newDue}`, 'success');
+      setActiveTab('circulation');
+      setCircSubTab('checkout');
+    } else {
+      showToast(`No active issued loan found for barcode: "${barcode}"`, 'warning');
+    }
+  };
+
+  const handleSearchCatalog = (query, _field = 'all') => {
+    setSearchQuery(query);
+    setActiveTab('catalog');
+  };
+
+  const handleSearchPatrons = (query) => {
+    if (query) {
+      showToast(`Searching patrons for: "${query}"`, 'info');
+    }
+    setActiveTab('patrons');
   };
 
   // Circulation Action: Check Out
   const handleCheckOutItem = (patron, book, dueDate) => {
-    // 1. Create Transaction
     const newTx = {
       id: 'TX-' + Math.floor(100 + Math.random() * 900),
       itemBarcode: book.barcode,
@@ -89,7 +145,6 @@ export default function App() {
 
     setTransactions((prev) => [newTx, ...prev]);
 
-    // 2. Decrement available copies in book
     setBooks((prev) =>
       prev.map((b) => {
         if (b.id === book.id) {
@@ -104,7 +159,6 @@ export default function App() {
       })
     );
 
-    // 3. Increment patron borrowed count
     setPatrons((prev) =>
       prev.map((p) => {
         if (p.id === patron.id) {
@@ -117,12 +171,10 @@ export default function App() {
 
   // Circulation Action: Check In
   const handleCheckInItem = (transaction) => {
-    // 1. Mark transaction as Returned
     setTransactions((prev) =>
       prev.map((t) => (t.id === transaction.id ? { ...t, status: 'Returned' } : t))
     );
 
-    // 2. Restore book copy count
     setBooks((prev) =>
       prev.map((b) => {
         if (b.barcode === transaction.itemBarcode) {
@@ -137,7 +189,6 @@ export default function App() {
       })
     );
 
-    // 3. Decrement patron borrowed count
     setPatrons((prev) =>
       prev.map((p) => {
         if (p.cardNum === transaction.patronCardNum && p.borrowedCount > 0) {
@@ -145,13 +196,6 @@ export default function App() {
         }
         return p;
       })
-    );
-  };
-
-  // Fine Payment Action
-  const handlePayFine = (patronId) => {
-    setPatrons((prev) =>
-      prev.map((p) => (p.id === patronId ? { ...p, fineBalance: 0.00, status: 'Active' } : p))
     );
   };
 
@@ -175,6 +219,7 @@ export default function App() {
   // Open Circulation tab prefilled for item
   const handleOpenCheckOutForItem = (book) => {
     setPreselectedCheckOutBook(book);
+    setCircSubTab('checkout');
     setActiveTab('circulation');
   };
 
@@ -183,18 +228,28 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Top Navbar */}
+      {/* Authentic Koha Staff Navbar with Multi-Tab Search Bar */}
       <Navbar
         systemPrefs={systemPrefs}
         selectedBranch={selectedBranch}
         setSelectedBranch={setSelectedBranch}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        searchCategory={searchCategory}
-        setSearchCategory={setSearchCategory}
-        onPerformSearch={handlePerformSearch}
+        onNavigateHome={() => setActiveTab('dashboard')}
+        onDirectCheckOut={handleDirectCheckOut}
+        onDirectCheckIn={handleDirectCheckIn}
+        onDirectRenew={handleDirectRenew}
+        onSearchCatalog={handleSearchCatalog}
+        onSearchPatrons={handleSearchPatrons}
+        activeLoansCount={activeLoans}
+      />
+
+      {/* Koha Breadcrumbs Bar */}
+      <Breadcrumbs
+        activeTab={activeTab}
+        onNavigateHome={() => setActiveTab('dashboard')}
+        circSubTab={activeTab === 'circulation' ? circSubTab : null}
+        selectedBookTitle={activeTab === 'catalog' && selectedBook ? selectedBook.title : null}
       />
 
       {/* Main App Workspace */}
@@ -203,6 +258,10 @@ export default function App() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          circSubTab={circSubTab}
+          setCircSubTab={setCircSubTab}
+          onOpenAddBook={() => setShowAddBookModal(true)}
+          onOpenAddPatron={() => setActiveTab('patrons')}
           stats={{
             activeLoans,
             totalBooks: books.length,
@@ -218,11 +277,21 @@ export default function App() {
               patrons={patrons}
               transactions={transactions}
               setActiveTab={setActiveTab}
-              onOpenCheckOut={() => setActiveTab('circulation')}
-              onOpenCheckIn={() => setActiveTab('circulation')}
+              onNavigateModule={handleNavigateModule}
+              onOpenCheckOut={() => {
+                setActiveTab('circulation');
+                setCircSubTab('checkout');
+              }}
+              onOpenCheckIn={() => {
+                setActiveTab('circulation');
+                setCircSubTab('checkin');
+              }}
               onOpenAddBook={() => setShowAddBookModal(true)}
               onOpenAddPatron={() => setActiveTab('patrons')}
               onSelectBook={(bk) => setSelectedBook(bk)}
+              onCheckInItem={handleCheckInItem}
+              selectedBranch={selectedBranch}
+              systemPrefs={systemPrefs}
             />
           )}
 
@@ -246,8 +315,11 @@ export default function App() {
               transactions={transactions}
               onCheckOutItem={handleCheckOutItem}
               onCheckInItem={handleCheckInItem}
-              onPayFine={handlePayFine}
               preselectedBook={preselectedCheckOutBook}
+              circSubTab={circSubTab}
+              setCircSubTab={setCircSubTab}
+              incomingBarcode={incomingBarcode}
+              incomingPatron={incomingPatron}
               showToast={showToast}
             />
           )}
@@ -264,7 +336,6 @@ export default function App() {
             <PatronsView
               patrons={patrons}
               onAddPatron={handleAddPatron}
-              onPayFine={handlePayFine}
               systemPrefs={systemPrefs}
               showToast={showToast}
             />

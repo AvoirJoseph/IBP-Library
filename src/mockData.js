@@ -176,7 +176,6 @@ export const INITIAL_PATRONS = [
     branch: "Main Library",
     status: "Active",
     borrowedCount: 2,
-    fineBalance: 0.00,
     expiryDate: "2027-06-30",
     avatarColor: "#3b82f6"
   },
@@ -190,7 +189,6 @@ export const INITIAL_PATRONS = [
     branch: "Science Branch",
     status: "Active",
     borrowedCount: 3,
-    fineBalance: 4.50,
     expiryDate: "2028-12-31",
     avatarColor: "#8b5cf6"
   },
@@ -204,7 +202,6 @@ export const INITIAL_PATRONS = [
     branch: "Main Library",
     status: "Active",
     borrowedCount: 1,
-    fineBalance: 0.00,
     expiryDate: "2027-08-15",
     avatarColor: "#10b981"
   },
@@ -216,9 +213,8 @@ export const INITIAL_PATRONS = [
     phone: "+1 (555) 987-6543",
     category: "Student",
     branch: "Main Library",
-    status: "Suspended (Fine)",
+    status: "Active",
     borrowedCount: 1,
-    fineBalance: 12.00,
     expiryDate: "2026-11-30",
     avatarColor: "#ef4444"
   },
@@ -232,7 +228,6 @@ export const INITIAL_PATRONS = [
     branch: "Law Library",
     status: "Active",
     borrowedCount: 0,
-    fineBalance: 0.00,
     expiryDate: "2026-12-01",
     avatarColor: "#f59e0b"
   }
@@ -277,10 +272,10 @@ export const INITIAL_TRANSACTIONS = [
 export const KOHA_SYSTEM_PREFS = {
   libraryName: "Metropolitan University Koha ILS",
   defaultBranch: "Main Library",
-  fineRatePerDay: 0.50,
   maxLoansStudent: 5,
   maxLoansFaculty: 15,
   loanDurationDays: 14,
+  loanPeriodDays: 14,
   renewLimit: 2,
   allowSelfCheckout: true,
   opacPublicAccess: true,
@@ -294,15 +289,15 @@ export const KOHA_SYSTEM_PREFS = {
 
 export const MOCK_SQL_QUERIES = [
   {
-    name: "List Overdue Loans & Calculated Fines",
-    sql: "SELECT tx.id, tx.bookTitle, p.name AS patron, DATEDIFF(NOW(), tx.dueDate) AS days_overdue, (DATEDIFF(NOW(), tx.dueDate) * 0.50) AS estimated_fine FROM transactions tx JOIN patrons p ON tx.patronCardNum = p.cardNum WHERE tx.status = 'Overdue';"
+    name: "List Overdue Loans & Days Overdue",
+    sql: "SELECT tx.id, tx.bookTitle, p.name AS patron, tx.dueDate, DATEDIFF(NOW(), tx.dueDate) AS days_overdue FROM transactions tx JOIN patrons p ON tx.patronCardNum = p.cardNum WHERE tx.status = 'Overdue';"
   },
   {
     name: "Top Borrowed Items Count",
     sql: "SELECT b.title, b.author, b.isbn, COUNT(tx.id) AS total_checkouts FROM books b LEFT JOIN transactions tx ON b.barcode = tx.itemBarcode GROUP BY b.id ORDER BY total_checkouts DESC;"
   },
   {
-    name: "Patrons with Balance > $0",
-    sql: "SELECT cardNum, name, category, fineBalance, status FROM patrons WHERE fineBalance > 0 ORDER BY fineBalance DESC;"
+    name: "Active Borrowers & Loan Count",
+    sql: "SELECT cardNum, name, category, borrowedCount, status FROM patrons WHERE borrowedCount > 0 ORDER BY borrowedCount DESC;"
   }
 ];

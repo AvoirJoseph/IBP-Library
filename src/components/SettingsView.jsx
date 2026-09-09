@@ -19,7 +19,7 @@ export default function SettingsView({ systemPrefs, setSystemPrefs, showToast })
             Koha System Administration
           </h1>
           <p className="page-subtitle">
-            Configure circulation rules, fine policies, library branches, and global preferences
+            Configure circulation rules, loan durations, library branches, and global preferences
           </p>
         </div>
         <button className="btn btn-primary" onClick={handleSave}>
@@ -29,7 +29,7 @@ export default function SettingsView({ systemPrefs, setSystemPrefs, showToast })
 
       <form onSubmit={handleSave}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-          {/* Circulation & Fines Policy */}
+          {/* Circulation Policy Rules */}
           <div className="koha-card">
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Sliders size={18} className="text-primary" />
@@ -46,26 +46,14 @@ export default function SettingsView({ systemPrefs, setSystemPrefs, showToast })
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Default Loan Duration (Days)</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  value={prefs.loanDurationDays}
-                  onChange={(e) => setPrefs({ ...prefs, loanDurationDays: Number(e.target.value) })}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Daily Fine Rate ($/Day)</label>
-                <input
-                  type="number"
-                  step="0.10"
-                  className="form-input"
-                  value={prefs.fineRatePerDay}
-                  onChange={(e) => setPrefs({ ...prefs, fineRatePerDay: Number(e.target.value) })}
-                />
-              </div>
+            <div className="form-group">
+              <label className="form-label">Default Loan Duration (Days)</label>
+              <input
+                type="number"
+                className="form-input"
+                value={prefs.loanDurationDays}
+                onChange={(e) => setPrefs({ ...prefs, loanDurationDays: Number(e.target.value) })}
+              />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

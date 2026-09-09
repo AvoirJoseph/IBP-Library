@@ -1,5 +1,5 @@
 import React from 'react';
-import { Newspaper, DollarSign, PlusCircle, CheckCircle2, ShoppingBag } from 'lucide-react';
+import { Newspaper, BookOpen, PlusCircle, CheckCircle2, Layers } from 'lucide-react';
 
 export default function SerialsView({ showToast }) {
   const serials = [
@@ -17,7 +17,7 @@ export default function SerialsView({ showToast }) {
             Koha Serials & Acquisitions
           </h1>
           <p className="page-subtitle">
-            Manage serial subscriptions, vendor purchase orders, budget allocations, and journal issues
+            Manage serial subscriptions, journal holdings, issue arrivals, and periodical catalogs
           </p>
         </div>
         <button className="btn btn-primary" onClick={() => showToast('Opened Subscription Wizard', 'info')}>
@@ -26,25 +26,25 @@ export default function SerialsView({ showToast }) {
         </button>
       </div>
 
-      {/* Budget Summary Grid */}
+      {/* Periodicals Summary Grid */}
       <div className="stats-grid">
         <div className="stat-card" style={{ '--stat-color': 'var(--primary)' }}>
           <div>
-            <div className="stat-label">FY2026 Library Budget</div>
-            <div className="stat-value">$125,000</div>
+            <div className="stat-label">Active Periodicals</div>
+            <div className="stat-value">3 Titles</div>
           </div>
           <div className="stat-icon">
-            <DollarSign size={22} />
+            <Newspaper size={22} />
           </div>
         </div>
 
         <div className="stat-card" style={{ '--stat-color': 'var(--success)' }}>
           <div>
-            <div className="stat-label">Committed Acquisitions</div>
-            <div className="stat-value">$48,200</div>
+            <div className="stat-label">Issues Received</div>
+            <div className="stat-value">68 Issues</div>
           </div>
           <div className="stat-icon">
-            <ShoppingBag size={22} />
+            <CheckCircle2 size={22} />
           </div>
         </div>
 

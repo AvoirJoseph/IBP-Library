@@ -38,7 +38,7 @@ export default function AddBookModal({ onClose, onAddBook, systemPrefs, showToas
       location: 'Stacks / General Collection',
       copies: Number(copies),
       availableCopies: Number(copies),
-      coverColor: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
+      coverColor: 'linear-gradient(135deg, rgba(65, 22, 76, 1) 0%, #7c2a93 100%)',
       status: 'Available',
       subjects: [itemType, 'General Collection'],
       description: `Bibliographic record created in Koha ILS.`,

@@ -1,268 +1,427 @@
 import React from 'react';
 import {
-  BookOpen,
   Repeat,
-  AlertTriangle,
   Users,
-  DollarSign,
-  PlusCircle,
   Search,
-  ArrowRight,
-  BookmarkCheck,
+  BookOpen,
+  FileCode,
+  Newspaper,
+  BarChart3,
+  Wrench,
+  Settings,
+  Info,
+  Clock,
   CheckCircle2,
-  Clock
+  PlusCircle,
+  ArrowRight,
+  Calendar
 } from 'lucide-react';
 
 export default function DashboardView({
-  books,
-  patrons,
-  transactions,
-  setActiveTab,
-  onOpenCheckOut,
+  books = [],
+  patrons = [],
+  transactions = [],
+  onNavigateModule,
   onOpenCheckIn,
   onOpenAddBook,
-  onOpenAddPatron,
-  onSelectBook
+  onSelectBook,
+  onCheckInItem,
+  selectedBranch,
+  systemPrefs = {}
 }) {
-  const totalTitles = books.length;
-  const activeLoansCount = transactions.filter((t) => t.status === 'Issued' || t.status === 'Overdue').length;
-  const overdueCount = transactions.filter((t) => t.status === 'Overdue').length;
-  const totalPatronsCount = patrons.length;
-  const totalFines = patrons.reduce((acc, p) => acc + p.fineBalance, 0);
+  const totalTitles = books?.length || 0;
+  const activeLoansList = (transactions || []).filter(
+    (t) => t.status === 'Issued' || t.status === 'Overdue'
+  );
+  const activeLoansCount = activeLoansList.length;
+  const overdueCount = (transactions || []).filter((t) => t.status === 'Overdue').length;
+  const totalPatronsCount = patrons?.length || 0;
+  const totalAvailableCopies = (books || []).reduce((acc, b) => acc + (Number(b.availableCopies) || 0), 0);
+  const loanPeriodDays = systemPrefs?.loanDurationDays ?? systemPrefs?.loanPeriodDays ?? 14;
+
+  // Today's formatted date
+  const todayStr = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  // Authentic Koha Staff Launchpad Modules
+  const kohaModules = [
+    {
+      id: 'circulation',
+      title: 'Circulation',
+      icon: Repeat,
+      color: '#0284c7',
+      links: [
+        { label: 'Check out', action: () => onNavigateModule('circulation', 'checkout') },
+        { label: 'Check in', action: () => onNavigateModule('circulation', 'checkin') },
+        { label: 'Holds queue', action: () => onNavigateModule('circulation', 'holds') },
+        { label: 'Overdue loans queue', action: () => onNavigateModule('circulation', 'checkout') }
+      ]
+    },
+    {
+      id: 'patrons',
+      title: 'Patrons',
+      icon: Users,
+      color: '#059669',
+      links: [
+        { label: 'Search patrons', action: () => onNavigateModule('patrons') },
+        { label: 'Register new patron', action: () => onOpenAddPatron() },
+        { label: 'Print patron cards', action: () => onNavigateModule('patrons') }
+      ]
+    },
+    {
+      id: 'catalog',
+      title: 'Advanced Search / Catalog',
+      icon: Search,
+      color: '#0891b2',
+      links: [
+        { label: 'Search catalog (OPAC)', action: () => onNavigateModule('catalog') },
+        { label: 'Item barcode search', action: () => onNavigateModule('catalog') },
+        { label: '+ Add new MARC record', action: () => onOpenAddBook() }
+      ]
+    },
+    {
+      id: 'marc',
+      title: 'Authorities & MARC21',
+      icon: FileCode,
+      color: '#7c3aed',
+      links: [
+        { label: 'MARC21 bibliographic editor', action: () => onNavigateModule('marc') },
+        { label: 'Manage standard tags (020, 100, 245)', action: () => onNavigateModule('marc') },
+        { label: 'Export ISO 2709 JSON', action: () => onNavigateModule('marc') }
+      ]
+    },
+    {
+      id: 'serials',
+      title: 'Serials & Acquisitions',
+      icon: Newspaper,
+      color: '#d97706',
+      links: [
+        { label: 'Periodical subscriptions', action: () => onNavigateModule('serials') },
+        { label: 'Receive serial issues', action: () => onNavigateModule('serials') },
+        { label: 'Library budgets & orders', action: () => onNavigateModule('serials') }
+      ]
+    },
+    {
+      id: 'reports',
+      title: 'Reports & SQL Analytics',
+      icon: BarChart3,
+      color: '#4f46e5',
+      links: [
+        { label: 'Guided reports wizard', action: () => onNavigateModule('reports') },
+        { label: 'Saved SQL query runner', action: () => onNavigateModule('reports') },
+        { label: 'Circulation statistics & exports', action: () => onNavigateModule('reports') }
+      ]
+    },
+    {
+      id: 'settings',
+      title: 'Koha Administration',
+      icon: Settings,
+      color: '#475569',
+      links: [
+        { label: 'System preferences', action: () => onNavigateModule('settings') },
+        { label: 'Circulation & loan rules', action: () => onNavigateModule('settings') },
+        { label: 'Manage library branches', action: () => onNavigateModule('settings') }
+      ]
+    },
+    {
+      id: 'tools',
+      title: 'Tools & Utilities',
+      icon: Wrench,
+      color: '#db2777',
+      links: [
+        { label: 'Patron card generator', action: () => onNavigateModule('patrons') },
+        { label: 'Batch bibliographic export', action: () => onNavigateModule('marc') },
+        { label: 'Check in fast-return barcode', action: () => onOpenCheckIn() }
+      ]
+    },
+    {
+      id: 'about',
+      title: 'About Koha',
+      icon: Info,
+      color: '#0d9488',
+      links: [
+        { label: 'Koha version 24.05.00', action: () => onNavigateModule('settings') },
+        { label: 'Server diagnostics: Operational', action: () => onNavigateModule('settings') },
+        { label: 'Documentation & community', action: () => window.open('https://koha-community.org', '_blank') }
+      ]
+    }
+  ];
 
   return (
-    <div>
-      {/* Page Title & Quick Actions */}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">
-            <BookOpen size={28} className="text-primary" />
-            Library Executive Dashboard
-          </h1>
-          <p className="page-subtitle">
-            Koha Integrated Library System • Main Campus & Branch Operations
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn btn-primary" onClick={onOpenCheckOut}>
-            <Repeat size={16} />
-            Quick Check Out
-          </button>
-
-          <button className="btn btn-secondary" onClick={onOpenCheckIn}>
-            <CheckCircle2 size={16} />
-            Check In Item
-          </button>
-
-          <button className="btn btn-secondary" onClick={onOpenAddBook}>
-            <PlusCircle size={16} />
-            Add MARC Title
-          </button>
-        </div>
-      </div>
-
-      {/* Quick Search Banner */}
-      <div className="koha-search-hero">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Search size={18} style={{ color: 'var(--primary)' }} />
-            Koha Universal OPAC & Circulation Search
-          </h2>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            Search by Barcode, ISBN, Patron Card # or Keyword
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Type book title, barcode (e.g. 399990148201) or patron card (e.g. 2390100491)..."
-            style={{ fontSize: '1rem', padding: '0.75rem 1rem' }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                setActiveTab('catalog');
-              }
-            }}
-          />
-          <button className="btn btn-primary" onClick={() => setActiveTab('catalog')}>
-            Search Catalog
-          </button>
-        </div>
-      </div>
-
-      {/* Key Metric Stat Cards */}
-      <div className="stats-grid">
-        <div className="stat-card" style={{ '--stat-color': 'var(--primary)' }}>
-          <div>
-            <div className="stat-label">Total Catalog Titles</div>
-            <div className="stat-value">{totalTitles}</div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              MARC21 Records in System
-            </span>
-          </div>
-          <div className="stat-icon">
-            <BookOpen size={22} />
+    <div className="koha-staff-home">
+      {/* Koha Welcome & Staff News Board */}
+      <div className="koha-home-top-grid">
+        {/* Welcome Greeting Banner */}
+        <div className="koha-welcome-banner">
+          <div className="koha-welcome-header">
+            <div>
+              <h1 className="koha-welcome-title">Koha Staff Client</h1>
+              <p className="koha-welcome-subtitle">
+                Logged in at: <strong>{selectedBranch}</strong> • {todayStr}
+              </p>
+            </div>
+            <div className="koha-welcome-actions">
+              <button
+                className="koha-btn-primary"
+                onClick={() => onNavigateModule('circulation', 'checkout')}
+              >
+                <Repeat size={15} />
+                <span>Check out</span>
+              </button>
+              <button
+                className="koha-btn-secondary"
+                onClick={() => onNavigateModule('circulation', 'checkin')}
+              >
+                <CheckCircle2 size={15} />
+                <span>Check in</span>
+              </button>
+              <button className="koha-btn-secondary" onClick={onOpenAddBook}>
+                <PlusCircle size={15} />
+                <span>Add Record</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="stat-card" style={{ '--stat-color': 'var(--warning)' }}>
-          <div>
-            <div className="stat-label">Active Book Loans</div>
-            <div className="stat-value">{activeLoansCount}</div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              Checked out to patrons
-            </span>
+        {/* Koha News & Operational Notice Widget */}
+        <div className="koha-news-card">
+          <div className="koha-news-heading">
+            <Calendar size={15} />
+            <span>Koha Library News & Notices</span>
           </div>
-          <div className="stat-icon">
-            <Repeat size={22} />
-          </div>
-        </div>
-
-        <div className="stat-card" style={{ '--stat-color': 'var(--danger)' }}>
-          <div>
-            <div className="stat-label">Overdue Circulation</div>
-            <div className="stat-value">{overdueCount}</div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--danger)' }}>
-              Requires patron notice
-            </span>
-          </div>
-          <div className="stat-icon">
-            <AlertTriangle size={22} />
-          </div>
-        </div>
-
-        <div className="stat-card" style={{ '--stat-color': 'var(--success)' }}>
-          <div>
-            <div className="stat-label">Registered Patrons</div>
-            <div className="stat-value">{totalPatronsCount}</div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              Students, Faculty, Staff
-            </span>
-          </div>
-          <div className="stat-icon">
-            <Users size={22} />
-          </div>
-        </div>
-
-        <div className="stat-card" style={{ '--stat-color': 'var(--accent-teal)' }}>
-          <div>
-            <div className="stat-label">Outstanding Fines</div>
-            <div className="stat-value">${totalFines.toFixed(2)}</div>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              Uncollected balances
-            </span>
-          </div>
-          <div className="stat-icon">
-            <DollarSign size={22} />
+          <div className="koha-news-body">
+            <div className="koha-news-alert">
+              <strong>Branch Operations:</strong> Full circulation active for {selectedBranch}. Default loan period: {loanPeriodDays} days.
+            </div>
+            <div className="koha-news-footer">
+              <span>Shift: Main Desk • Superuser Staff</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Two Column Layout: Recent Transactions & Popular Catalog */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem' }}>
-        {/* Active Circulation & Overdues Table */}
-        <div className="koha-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Clock size={18} className="text-primary" />
-              Active Circulation & Overdue Items
-            </h3>
-            <button className="btn btn-secondary btn-sm" onClick={() => setActiveTab('circulation')}>
-              View All
+      {/* Live Operational Counters Strip */}
+      <div className="koha-stat-ribbon">
+        <div
+          className="koha-stat-tile"
+          onClick={() => onNavigateModule('catalog')}
+          title="Click to view Catalog"
+        >
+          <div className="koha-stat-number">{totalTitles}</div>
+          <div className="koha-stat-label">Catalog Titles</div>
+        </div>
+
+        <div
+          className="koha-stat-tile"
+          onClick={() => onNavigateModule('circulation', 'checkout')}
+          title="Click to view Active Loans"
+        >
+          <div className="koha-stat-number stat-highlight-blue">{activeLoansCount}</div>
+          <div className="koha-stat-label">Active Loans</div>
+        </div>
+
+        <div
+          className="koha-stat-tile"
+          onClick={() => onNavigateModule('circulation', 'checkout')}
+          title="Click to view Overdue Items"
+        >
+          <div className="koha-stat-number stat-highlight-red">{overdueCount}</div>
+          <div className="koha-stat-label">Overdue Loans</div>
+        </div>
+
+        <div
+          className="koha-stat-tile"
+          onClick={() => onNavigateModule('patrons')}
+          title="Click to view Patrons"
+        >
+          <div className="koha-stat-number stat-highlight-green">{totalPatronsCount}</div>
+          <div className="koha-stat-label">Patrons</div>
+        </div>
+
+        <div
+          className="koha-stat-tile"
+          onClick={() => onNavigateModule('catalog')}
+          title="Click to view Available Catalog Items"
+        >
+          <div className="koha-stat-number stat-highlight-amber">
+            {totalAvailableCopies}
+          </div>
+          <div className="koha-stat-label">Available Items</div>
+        </div>
+      </div>
+
+      {/* Iconic Koha Staff Module Launchpad Grid */}
+      <div className="koha-launchpad-section">
+        <div className="koha-section-header">
+          <h2 className="koha-section-title">Koha Main Modules</h2>
+          <span className="koha-section-meta">Select a module or workflow link below</span>
+        </div>
+
+        <div className="koha-module-grid">
+          {kohaModules.map((mod) => {
+            const Icon = mod.icon;
+            return (
+              <div key={mod.id} className="koha-module-card">
+                <div className="koha-module-card-header">
+                  <div
+                    className="koha-module-icon-box"
+                    style={{ backgroundColor: `${mod.color}18`, color: mod.color }}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <h3
+                    className="koha-module-name"
+                    onClick={() => onNavigateModule(mod.id)}
+                    title={`Open ${mod.title}`}
+                  >
+                    {mod.title}
+                  </h3>
+                </div>
+
+                <ul className="koha-module-links">
+                  {mod.links.map((link, idx) => (
+                    <li key={idx} className="koha-module-link-item">
+                      <span className="koha-bullet">•</span>
+                      <button
+                        type="button"
+                        className="koha-module-link-btn"
+                        onClick={link.action}
+                      >
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Bottom Section: Active Circulation Log & Recent Catalog */}
+      <div className="koha-home-bottom-grid">
+        {/* Active Circulation Table */}
+        <div className="koha-panel">
+          <div className="koha-panel-header">
+            <div className="koha-panel-title-group">
+              <Clock size={16} className="text-primary" />
+              <h3 className="koha-panel-title">Active Circulation & Checked Out Items</h3>
+            </div>
+            <button
+              className="koha-btn-link"
+              onClick={() => onNavigateModule('circulation')}
+            >
+              View Circulation Workstation &rarr;
             </button>
           </div>
 
-          <div className="table-wrapper">
-            <table className="koha-table">
+          <div className="koha-table-responsive">
+            <table className="koha-data-table">
               <thead>
                 <tr>
-                  <th>Item Barcode</th>
+                  <th>Barcode</th>
                   <th>Title</th>
                   <th>Patron</th>
                   <th>Due Date</th>
                   <th>Status</th>
+                  <th>Quick Action</th>
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((tx) => (
-                  <tr key={tx.id}>
-                    <td>
-                      <span className="mono-text">{tx.itemBarcode}</span>
-                    </td>
-                    <td style={{ fontWeight: 600, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {tx.bookTitle}
-                    </td>
-                    <td>{tx.patronName}</td>
-                    <td>{tx.dueDate}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          tx.status === 'Overdue' ? 'badge-overdue' : 'badge-loaned'
-                        }`}
-                      >
-                        {tx.status}
-                      </span>
+                {activeLoansList.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-secondary)' }}>
+                      No active items currently issued.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  activeLoansList.slice(0, 5).map((tx) => (
+                    <tr key={tx.id}>
+                      <td className="mono-text">{tx.itemBarcode}</td>
+                      <td style={{ fontWeight: 600 }}>{tx.bookTitle}</td>
+                      <td>{tx.patronName}</td>
+                      <td>{tx.dueDate}</td>
+                      <td>
+                        <span
+                          className={`koha-badge ${
+                            tx.status === 'Overdue' ? 'koha-badge-overdue' : 'koha-badge-issued'
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="koha-btn-action-sm"
+                          onClick={() => onCheckInItem(tx)}
+                          title="Check In Item"
+                        >
+                          Check in
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Featured Catalog Items Grid */}
-        <div className="koha-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BookmarkCheck size={18} style={{ color: 'var(--accent-teal)' }} />
-              Featured Catalog Holdings
-            </h3>
-            <button className="btn btn-secondary btn-sm" onClick={() => setActiveTab('catalog')}>
-              Explore Catalog
+        {/* Featured Catalog Shelf */}
+        <div className="koha-panel">
+          <div className="koha-panel-header">
+            <div className="koha-panel-title-group">
+              <BookOpen size={16} className="text-primary" />
+              <h3 className="koha-panel-title">Recent Catalog Additions</h3>
+            </div>
+            <button
+              className="koha-btn-link"
+              onClick={() => onNavigateModule('catalog')}
+            >
+              Browse OPAC &rarr;
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            {books.slice(0, 4).map((book) => (
+          <div className="koha-book-mini-list">
+            {books.slice(0, 4).map((b) => (
               <div
-                key={book.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '0.75rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-input)',
-                  border: '1px solid var(--border-color)',
-                  cursor: 'pointer',
-                  transition: 'var(--transition)'
+                key={b.id}
+                className="koha-book-mini-row"
+                onClick={() => {
+                  onSelectBook(b);
+                  onNavigateModule('catalog');
                 }}
-                onClick={() => onSelectBook(book)}
               >
                 <div
-                  className="book-cover"
-                  style={{ background: book.coverColor, flexShrink: 0 }}
+                  className="koha-book-mini-cover"
+                  style={{ background: b.coverColor }}
                 >
-                  <span>{book.itemType}</span>
-                  <span style={{ fontSize: '0.5rem' }}>{book.year}</span>
+                  <span>{b.itemType.slice(0, 4)}</span>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {book.title}
-                  </h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    {book.author}
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
-                    <span className="mono-text" style={{ fontSize: '0.7rem' }}>
-                      {book.callNumber}
+                <div className="koha-book-mini-meta">
+                  <div className="koha-book-mini-title">{b.title}</div>
+                  <div className="koha-book-mini-author">{b.author}</div>
+                  <div className="koha-book-mini-sub">
+                    <span className="mono-text" style={{ fontSize: '0.72rem' }}>
+                      {b.callNumber}
                     </span>
-                    <span className={`badge ${book.availableCopies > 0 ? 'badge-available' : 'badge-loaned'}`}>
-                      {book.availableCopies > 0 ? `${book.availableCopies} Copies Available` : 'All Checked Out'}
+                    <span
+                      className={`koha-avail-text ${
+                        b.availableCopies > 0 ? 'text-success' : 'text-danger'
+                      }`}
+                    >
+                      {b.availableCopies > 0
+                        ? `${b.availableCopies} available`
+                        : 'Checked out'}
                     </span>
                   </div>
                 </div>
-                <ArrowRight size={16} className="text-muted" />
+                <ArrowRight size={14} className="text-muted" />
               </div>
             ))}
           </div>

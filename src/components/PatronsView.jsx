@@ -15,7 +15,6 @@ import {
 export default function PatronsView({
   patrons,
   onAddPatron,
-  onPayFine,
   systemPrefs,
   showToast
 }) {
@@ -55,9 +54,8 @@ export default function PatronsView({
       branch: newBranch,
       status: 'Active',
       borrowedCount: 0,
-      fineBalance: 0.00,
       expiryDate: '2027-12-31',
-      avatarColor: '#0ea5e9'
+      avatarColor: 'rgba(65, 22, 76, 1)'
     };
 
     onAddPatron(newPatron);
@@ -78,7 +76,7 @@ export default function PatronsView({
             Koha Patron Records & Categories
           </h1>
           <p className="page-subtitle">
-            Manage library members, issue cards, track loan privileges and fine balances
+            Manage library members, issue cards, and track active loan privileges
           </p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
@@ -115,7 +113,6 @@ export default function PatronsView({
               <th>Category</th>
               <th>Home Branch</th>
               <th>Active Loans</th>
-              <th>Fine Balance</th>
               <th>Card Expiry</th>
               <th>Status</th>
               <th>Actions</th>
@@ -129,11 +126,6 @@ export default function PatronsView({
                 <td><span className="badge badge-category">{patron.category}</span></td>
                 <td>{patron.branch}</td>
                 <td><strong>{patron.borrowedCount}</strong> items</td>
-                <td>
-                  <span style={{ color: patron.fineBalance > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 700 }}>
-                    ${patron.fineBalance.toFixed(2)}
-                  </span>
-                </td>
                 <td>{patron.expiryDate}</td>
                 <td>
                   <span className={`badge ${patron.status === 'Active' ? 'badge-available' : 'badge-overdue'}`}>
@@ -262,18 +254,18 @@ export default function PatronsView({
             <div className="modal-body">
               <div
                 style={{
-                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                  border: '1px solid #38bdf8',
+                  background: 'linear-gradient(135deg, #1f0b26 0%, #3e1649 100%)',
+                  border: '1px solid #c06ee0',
                   borderRadius: '14px',
                   padding: '1.5rem',
                   color: 'white',
                   position: 'relative',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                  boxShadow: '0 8px 24px rgba(65, 22, 76, 0.4)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#38bdf8', fontWeight: 800 }}>
+                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#e4c4ef', fontWeight: 800 }}>
                       Koha Integrated Library System
                     </div>
                     <div style={{ fontSize: '1rem', fontWeight: 800 }}>{selectedPatron.branch}</div>

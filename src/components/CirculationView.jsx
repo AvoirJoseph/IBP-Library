@@ -4,12 +4,7 @@ import {
   CheckCircle2,
   UserCheck,
   Barcode as BarcodeIcon,
-  Clock,
-  DollarSign,
-  AlertCircle,
-  Calendar,
-  BookmarkCheck,
-  Sparkles
+  Calendar
 } from 'lucide-react';
 
 export default function CirculationView({
@@ -18,21 +13,45 @@ export default function CirculationView({
   transactions,
   onCheckOutItem,
   onCheckInItem,
-  onPayFine,
   preselectedBook,
-  showToast
+  showToast,
+  circSubTab = 'checkout',
+  setCircSubTab,
+  incomingBarcode = '',
+  incomingPatron = ''
 }) {
-  const [circTab, setCircTab] = useState('checkout'); // 'checkout' | 'checkin' | 'holds' | 'fines'
+  const [internalTab, setInternalTab] = useState('checkout');
+  const activeCircTab = circSubTab || internalTab;
+  const switchTab = (t) => {
+    if (setCircSubTab) setCircSubTab(t);
+    setInternalTab(t);
+  };
 
   // Check out Form state
-  const [selectedPatronId, setSelectedPatronId] = useState(patrons[0]?.id || '');
+  const [selectedPatronId, setSelectedPatronId] = useState(
+    incomingPatron ? (patrons.find(p => p.cardNum === incomingPatron || p.name.toLowerCase().includes(incomingPatron.toLowerCase()))?.id || patrons[0]?.id || '') : (patrons[0]?.id || '')
+  );
   const [selectedBookId, setSelectedBookId] = useState(
     preselectedBook ? preselectedBook.id : books[0]?.id || ''
   );
   const [dueDate, setDueDate] = useState('2026-09-15');
 
   // Check in Form state
-  const [returnBarcode, setReturnBarcode] = useState('');
+  const [returnBarcode, setReturnBarcode] = useState(incomingBarcode || '');
+
+  // Keep incoming states updated
+  React.useEffect(() => {
+    if (incomingBarcode) {
+      setReturnBarcode(incomingBarcode);
+    }
+  }, [incomingBarcode]);
+
+  React.useEffect(() => {
+    if (incomingPatron) {
+      const match = patrons.find(p => p.cardNum === incomingPatron || p.name.toLowerCase().includes(incomingPatron.toLowerCase()));
+      if (match) setSelectedPatronId(match.id);
+    }
+  }, [incomingPatron, patrons]);
 
   const activePatron = patrons.find((p) => p.id === selectedPatronId);
   const activeBook = books.find((b) => b.id === selectedBookId);
@@ -43,11 +62,6 @@ export default function CirculationView({
 
     if (activeBook.availableCopies <= 0) {
       showToast('No available copies left for this item!', 'danger');
-      return;
-    }
-
-    if (activePatron.fineBalance > 10.00) {
-      showToast(`Cannot issue item! Patron ${activePatron.name} has excessive outstanding fine balance ($${activePatron.fineBalance.toFixed(2)}).`, 'warning');
       return;
     }
 
@@ -83,7 +97,7 @@ export default function CirculationView({
             Circulation & Loan Workstation
           </h1>
           <p className="page-subtitle">
-            Manage check-outs, returns, renewals, hold reserves, and patron fees
+            Manage check-outs, returns, renewals, and hold reserves
           </p>
         </div>
       </div>
@@ -91,33 +105,27 @@ export default function CirculationView({
       {/* Circulation Tabs */}
       <div className="tabs-header">
         <button
-          className={`tab-btn ${circTab === 'checkout' ? 'active' : ''}`}
-          onClick={() => setCircTab('checkout')}
+          className={`tab-btn ${activeCircTab === 'checkout' ? 'active' : ''}`}
+          onClick={() => switchTab('checkout')}
         >
           Check Out (Issue)
         </button>
         <button
-          className={`tab-btn ${circTab === 'checkin' ? 'active' : ''}`}
-          onClick={() => setCircTab('checkin')}
+          className={`tab-btn ${activeCircTab === 'checkin' ? 'active' : ''}`}
+          onClick={() => switchTab('checkin')}
         >
           Check In (Return)
         </button>
         <button
-          className={`tab-btn ${circTab === 'holds' ? 'active' : ''}`}
-          onClick={() => setCircTab('holds')}
+          className={`tab-btn ${activeCircTab === 'holds' ? 'active' : ''}`}
+          onClick={() => switchTab('holds')}
         >
           Holds & Reserves Queue
-        </button>
-        <button
-          className={`tab-btn ${circTab === 'fines' ? 'active' : ''}`}
-          onClick={() => setCircTab('fines')}
-        >
-          Fines & Fees Payment
         </button>
       </div>
 
       {/* Circulation Content */}
-      {circTab === 'checkout' && (
+      {activeCircTab === 'checkout' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem' }}>
           {/* Check out Form */}
           <div className="koha-card">
@@ -137,7 +145,7 @@ export default function CirculationView({
                 >
                   {patrons.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.cardNum}) — {p.category} [Fine: ${p.fineBalance.toFixed(2)}]
+                      {p.name} ({p.cardNum}) — {p.category}
                     </option>
                   ))}
                 </select>
@@ -205,10 +213,7 @@ export default function CirculationView({
                   Card #: <span className="mono-text">{activePatron.cardNum}</span> • Category: {activePatron.category}
                 </div>
                 <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-                  <span className="badge badge-category">Loans: {activePatron.borrowedCount}</span>
-                  <span className={`badge ${activePatron.fineBalance > 0 ? 'badge-overdue' : 'badge-available'}`}>
-                    Fine: ${activePatron.fineBalance.toFixed(2)}
-                  </span>
+                  <span className="badge badge-category">Active Loans: {activePatron.borrowedCount}</span>
                 </div>
               </div>
             )}
@@ -230,7 +235,7 @@ export default function CirculationView({
         </div>
       )}
 
-      {circTab === 'checkin' && (
+      {activeCircTab === 'checkin' && (
         <div style={{ maxWidth: '650px', margin: '0 auto' }}>
           <div className="koha-card">
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -284,7 +289,7 @@ export default function CirculationView({
         </div>
       )}
 
-      {circTab === 'holds' && (
+      {activeCircTab === 'holds' && (
         <div className="koha-card">
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
             Pending Koha Holds & Reserves Queue
@@ -316,50 +321,6 @@ export default function CirculationView({
                     </button>
                   </td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {circTab === 'fines' && (
-        <div className="koha-card">
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
-            Patron Fine & Fee Collection Console
-          </h3>
-          <div className="table-wrapper">
-            <table className="koha-table">
-              <thead>
-                <tr>
-                  <th>Card Number</th>
-                  <th>Patron Name</th>
-                  <th>Category</th>
-                  <th>Current Balance</th>
-                  <th>Status</th>
-                  <th>Payment Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patrons.filter((p) => p.fineBalance > 0).map((p) => (
-                  <tr key={p.id}>
-                    <td><span className="mono-text">{p.cardNum}</span></td>
-                    <td style={{ fontWeight: 700 }}>{p.name}</td>
-                    <td>{p.category}</td>
-                    <td style={{ color: 'var(--danger)', fontWeight: 800 }}>${p.fineBalance.toFixed(2)}</td>
-                    <td><span className="badge badge-overdue">{p.status}</span></td>
-                    <td>
-                      <button
-                        className="btn btn-success btn-sm"
-                        onClick={() => {
-                          onPayFine(p.id);
-                          showToast(`Cleared fine for ${p.name}. Balance is now $0.00!`, 'success');
-                        }}
-                      >
-                        <DollarSign size={14} /> Clear Balance
-                      </button>
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </div>

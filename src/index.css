@@ -1,32 +1,35 @@
 /* Koha ILS Design System */
 
 :root {
-  /* Color Palette - Dark Theme (Default) */
-  --bg-main: #0b0f19;
-  --bg-card: #151c2c;
-  --bg-card-hover: #1b253b;
-  --bg-sidebar: #0f1624;
-  --bg-header: #0d1320;
-  --bg-input: #1a2336;
-  --bg-hover: #222e46;
-  --bg-modal: #131a29;
+  /* Color Palette - Dark Theme (Koha Regal Plum) */
+  --brand-plum: rgba(65, 22, 76, 1);
+  --brand-plum-dark: #2d0e35;
+  
+  --bg-main: #130718;
+  --bg-card: #1c0c22;
+  --bg-card-hover: #26112e;
+  --bg-sidebar: #17091d;
+  --bg-header: rgba(65, 22, 76, 1);
+  --bg-input: #230e2b;
+  --bg-hover: #31143c;
+  --bg-modal: #1a0a20;
 
-  --border-color: #26334d;
-  --border-focus: #38bdf8;
-  --border-subtle: #1e293d;
+  --border-color: #3d1648;
+  --border-focus: #c06ee0;
+  --border-subtle: #2b0f33;
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #0f172a;
+  --text-primary: #f8f4fa;
+  --text-secondary: #c2b1cb;
+  --text-muted: #8b7694;
+  --text-inverse: #150619;
 
-  --primary: #0ea5e9;
-  --primary-hover: #0284c7;
-  --primary-light: rgba(14, 165, 233, 0.15);
-  --primary-glow: rgba(14, 165, 233, 0.35);
+  --primary: #be5fd8;
+  --primary-hover: #d279ea;
+  --primary-light: rgba(190, 95, 216, 0.18);
+  --primary-glow: rgba(190, 95, 216, 0.35);
 
   --accent-teal: #14b8a6;
-  --accent-purple: #8b5cf6;
+  --accent-purple: #c06ee0;
   
   --success: #10b981;
   --success-bg: rgba(16, 185, 129, 0.15);
@@ -34,16 +37,16 @@
   --warning-bg: rgba(245, 158, 11, 0.15);
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.15);
-  --info: #3b82f6;
-  --info-bg: rgba(59, 130, 246, 0.15);
+  --info: #a855f7;
+  --info-bg: rgba(168, 85, 247, 0.15);
 
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.25);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(190, 95, 216, 0.28);
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -54,33 +57,36 @@
 }
 
 .light-theme {
-  --bg-main: #f8fafc;
+  --brand-plum: rgba(65, 22, 76, 1);
+  --brand-plum-dark: #2d0e35;
+
+  --bg-main: #f9f6fb;
   --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --bg-sidebar: #1e293b;
-  --bg-header: #ffffff;
-  --bg-input: #f1f5f9;
-  --bg-hover: #e2e8f0;
+  --bg-card-hover: #fcf9fd;
+  --bg-sidebar: #ffffff;
+  --bg-header: rgba(65, 22, 76, 1);
+  --bg-input: #f8f3fa;
+  --bg-hover: #f0e6f4;
   --bg-modal: #ffffff;
 
-  --border-color: #e2e8f0;
-  --border-focus: #0284c7;
-  --border-subtle: #cbd5e1;
+  --border-color: #e5d6eb;
+  --border-focus: #662278;
+  --border-subtle: #f1e7f5;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #1f1025;
+  --text-secondary: #584460;
+  --text-muted: #887490;
   --text-inverse: #ffffff;
 
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
-  --primary-light: rgba(2, 132, 199, 0.1);
-  --primary-glow: rgba(2, 132, 199, 0.2);
+  --primary: #662278;
+  --primary-hover: rgba(65, 22, 76, 1);
+  --primary-light: rgba(65, 22, 76, 0.09);
+  --primary-glow: rgba(65, 22, 76, 0.24);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 20px rgba(2, 132, 199, 0.15);
+  --shadow-sm: 0 1px 3px rgba(65, 22, 76, 0.06);
+  --shadow-md: 0 4px 12px rgba(65, 22, 76, 0.08);
+  --shadow-lg: 0 10px 25px rgba(65, 22, 76, 0.12);
+  --shadow-glow: 0 0 20px rgba(102, 34, 120, 0.18);
 }
 
 /* Reset & Base */
@@ -126,7 +132,8 @@ button, input, select, textarea {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .main-wrapper {
@@ -137,9 +144,8 @@ button, input, select, textarea {
 
 .content-area {
   flex: 1;
-  padding: 1.75rem 2rem;
+  padding: 1.5rem 2rem;
   overflow-y: auto;
-  height: calc(100vh - 65px);
 }
 
 /* Header / Navbar */
@@ -178,23 +184,23 @@ button, input, select, textarea {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #7c2a93 0%, rgba(65, 22, 76, 1) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+  box-shadow: 0 4px 12px rgba(65, 22, 76, 0.35);
 }
 
 .logo-tag {
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  background: linear-gradient(135deg, #c06ee0 0%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   padding: 2px 6px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(192, 110, 224, 0.3);
   border-radius: 4px;
   letter-spacing: 0.05em;
   margin-left: 4px;
@@ -378,7 +384,7 @@ button, input, select, textarea {
   background-color: var(--primary-light);
   color: var(--primary);
   font-weight: 700;
-  border-color: rgba(14, 165, 233, 0.3);
+  border-color: rgba(65, 22, 76, 0.25);
 }
 
 .nav-item.active svg {
@@ -443,12 +449,12 @@ button, input, select, textarea {
 .btn-primary {
   background-color: var(--primary);
   color: #ffffff;
-  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 2px 10px rgba(65, 22, 76, 0.25);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.45);
+  box-shadow: 0 4px 16px rgba(65, 22, 76, 0.35);
   transform: translateY(-1px);
 }
 
@@ -960,9 +966,1067 @@ button, input, select, textarea {
 
 /* Quick search banner in Koha style */
 .koha-search-hero {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
-  border: 1px solid rgba(14, 165, 233, 0.25);
+  background: linear-gradient(135deg, rgba(65, 22, 76, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border: 1px solid rgba(65, 22, 76, 0.25);
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 2rem;
 }
+
+/* =========================================================
+   AUTHENTIC KOHA STAFF CLIENT DESIGN SYSTEM
+   ========================================================= */
+
+/* Top Header & Navbar */
+.koha-staff-header {
+  background-color: var(--brand-plum);
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+.koha-top-utility {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  height: 46px;
+}
+
+.koha-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.koha-logo {
+  display: flex;
+  align-items: baseline;
+  font-size: 1.65rem;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.koha-text {
+  line-height: 1;
+}
+
+.koha-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #e05d44;
+  margin-left: 2px;
+  align-self: flex-start;
+  margin-top: 3px;
+}
+
+.koha-brand-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.koha-tagline {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #e4c4ef;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.koha-ver {
+  font-size: 0.6rem;
+  color: #cbd5e1;
+  line-height: 1.2;
+}
+
+.koha-top-center {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.koha-location-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.koha-location-icon {
+  color: #e4c4ef;
+}
+
+.koha-location-label {
+  color: #cbd5e1;
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
+.koha-branch-dropdown {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.koha-branch-dropdown option {
+  background: #36123e;
+  color: #ffffff;
+}
+
+.koha-top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.koha-header-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.koha-top-btn {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.koha-top-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.koha-mini-pill {
+  background: #7c2a93;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 9999px;
+}
+
+.koha-icon-tool-btn {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+
+.koha-icon-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.koha-notice-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #e05d44;
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--brand-plum);
+}
+
+.koha-staff-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.koha-staff-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8a30a4 0%, var(--brand-plum) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.koha-staff-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.koha-staff-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.koha-staff-role {
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+
+.koha-notices-dropdown {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  width: 320px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  padding: 0.85rem;
+}
+
+.koha-notices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.85rem;
+}
+
+.koha-notice-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.koha-notice-item:last-child {
+  border-bottom: none;
+}
+
+.koha-notice-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.koha-notice-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Persistent Koha Staff Multi-Tab Search Bar */
+.koha-persistent-search {
+  background-color: var(--brand-plum-dark);
+  padding: 0.25rem 1.5rem 0.5rem 1.5rem;
+}
+
+.koha-search-tabs {
+  display: flex;
+  gap: 3px;
+}
+
+.koha-tab-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #f5e8f9;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+}
+
+.koha-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.koha-tab-btn.active {
+  background: #ffffff;
+  color: var(--brand-plum);
+  font-weight: 700;
+}
+
+.koha-search-form {
+  background: #ffffff;
+  border-radius: 0 4px 4px 4px;
+  padding: 0.35rem 0.55rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.koha-form-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.koha-input-prefix {
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.koha-field-select {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  color: #1e293b;
+  font-weight: 600;
+  outline: none;
+}
+
+.koha-search-input {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.88rem;
+  color: #0f172a;
+  outline: none;
+}
+
+.koha-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.koha-btn-submit {
+  padding: 0.38rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+}
+
+.koha-btn-search {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.koha-btn-search:hover {
+  background: var(--primary-hover);
+}
+
+.koha-btn-checkout {
+  background: #059669;
+  color: #ffffff;
+}
+
+.koha-btn-checkout:hover {
+  background: #047857;
+}
+
+.koha-btn-checkin {
+  background: #7c2a93;
+  color: #ffffff;
+}
+
+.koha-btn-checkin:hover {
+  background: var(--brand-plum);
+}
+
+.koha-btn-renew {
+  background: #d97706;
+  color: #ffffff;
+}
+
+.koha-btn-renew:hover {
+  background: #b45309;
+}
+
+/* Breadcrumbs Bar */
+.koha-breadcrumbs-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.4rem 1.5rem;
+  flex-shrink: 0;
+}
+
+.koha-breadcrumbs-container {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.koha-crumb-link {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.koha-crumb-sep {
+  color: var(--text-muted);
+}
+
+.koha-crumb-item {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.koha-crumb-item.active {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Koha Staff Sidebar */
+.koha-staff-sidebar {
+  width: 230px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.koha-sidebar-heading {
+  padding: 0.85rem 1.15rem 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.koha-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.25rem 0.5rem;
+}
+
+.koha-nav-item-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.koha-nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.52rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.koha-nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.koha-nav-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.koha-nav-label-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.koha-nav-pill {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+}
+
+.koha-subnav-list {
+  padding: 0.2rem 0 0.4rem 1.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.koha-subnav-item {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.28rem 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.koha-subnav-item:hover {
+  color: var(--primary);
+  background: var(--bg-hover);
+}
+
+.koha-subnav-item.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.koha-sidebar-footer {
+  margin-top: auto;
+  padding: 0.85rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.koha-system-info-card {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.75rem;
+  font-size: 0.72rem;
+}
+
+.koha-system-info-title {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.koha-system-info-meta {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  margin-bottom: 4px;
+}
+
+.koha-community-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+}
+
+/* Koha Home Launchpad (Dashboard) */
+.koha-staff-home {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.koha-home-top-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 1.15rem;
+}
+
+.koha-welcome-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.35rem;
+}
+
+.koha-welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.koha-welcome-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.koha-welcome-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.koha-welcome-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.koha-btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.koha-btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.koha-btn-secondary {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.koha-btn-secondary:hover {
+  background: var(--bg-hover);
+}
+
+.koha-news-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.koha-news-heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.koha-news-alert {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  background: var(--bg-hover);
+  padding: 0.45rem 0.65rem;
+  border-left: 3px solid var(--primary);
+  border-radius: 3px;
+}
+
+.koha-news-footer {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+.koha-stat-ribbon {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.koha-stat-tile {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.9rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.koha-stat-tile:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.koha-stat-number {
+  font-size: 1.55rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.stat-highlight-blue {
+  color: var(--primary);
+}
+
+.stat-highlight-red {
+  color: #ef4444;
+}
+
+.stat-highlight-green {
+  color: #10b981;
+}
+
+.stat-highlight-amber {
+  color: #d97706;
+}
+
+.koha-stat-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+.koha-launchpad-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.koha-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.koha-section-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.koha-section-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.koha-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.95rem;
+}
+
+.koha-module-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.05rem;
+  transition: var(--transition);
+}
+
+.koha-module-card:hover {
+  border-color: #00739c;
+  box-shadow: var(--shadow-sm);
+}
+
+.koha-module-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.koha-module-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.koha-module-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.koha-module-name:hover {
+  text-decoration: underline;
+}
+
+.koha-module-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.koha-module-link-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.koha-bullet {
+  color: var(--primary);
+  font-size: 0.75rem;
+}
+
+.koha-module-link-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  transition: var(--transition);
+}
+
+.koha-module-link-btn:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.koha-home-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.15rem;
+}
+
+.koha-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+}
+
+.koha-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.koha-panel-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.koha-panel-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.koha-btn-link {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.koha-table-responsive {
+  overflow-x: auto;
+}
+
+.koha-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.koha-data-table th {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.koha-data-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.koha-data-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.koha-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.koha-badge-issued {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.koha-badge-overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.koha-btn-action-sm {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.koha-btn-action-sm:hover {
+  background: var(--primary-hover);
+}
+
+.koha-book-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.koha-book-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.koha-book-mini-row:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-color);
+}
+
+.koha-book-mini-cover {
+  width: 30px;
+  height: 40px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.koha-book-mini-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.koha-book-mini-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.koha-book-mini-author {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.koha-book-mini-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1px;
+}
+
+.koha-avail-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
