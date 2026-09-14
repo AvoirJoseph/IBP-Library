@@ -404,6 +404,7 @@ export default function App() {
               setSearchQuery={setSearchQuery}
               selectedBook={selectedBook}
               setSelectedBook={setSelectedBook}
+              onSelectBook={(bk) => setSelectedBook(bk)}
               onOpenAddBook={() => setShowAddBookModal(true)}
               onOpenCheckOutForItem={handleOpenCheckOutForItem}
               systemPrefs={systemPrefs}
