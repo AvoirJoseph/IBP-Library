@@ -1,353 +1,293 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Search,
   Building2,
   Bell,
-  Sun,
-  Moon,
-  Repeat,
-  CheckCircle2,
-  RefreshCw,
-  Users,
   BookOpen,
-  HelpCircle,
-  ShoppingCart,
-  ListFilter,
-  User
+  User,
+  ChevronDown,
+  Check,
+  Home,
+  Repeat,
+  Users,
+  FileCode,
+  Newspaper,
+  BarChart3,
+  Settings
 } from 'lucide-react';
 
 export default function Navbar({
   systemPrefs,
   selectedBranch,
   setSelectedBranch,
-  darkMode,
-  setDarkMode,
   onNavigateHome,
   onDirectCheckOut,
   onDirectCheckIn,
-  onDirectRenew,
   onSearchCatalog,
   onSearchPatrons,
-  activeLoansCount = 0
+  activeLoansCount = 0,
+  activeLayoutSet = 'modern-sleek',
+  onSelectLayoutSet,
+  layoutSets = {},
+  effectiveLayout,
+  activeTab,
+  setActiveTab,
+  stats = {}
 }) {
-  // Koha Staff Search Bar Tabs: 'checkout' | 'checkin' | 'renew' | 'catalog' | 'patrons'
-  const [activeSearchTab, setActiveSearchTab] = useState('catalog');
+  // Universal search state
+  const [searchScope, setSearchScope] = useState('catalog');
+  const [searchValue, setSearchValue] = useState('');
 
-  // Input states for each search tab
-  const [checkoutInput, setCheckoutInput] = useState('');
-  const [checkinInput, setCheckinInput] = useState('');
-  const [renewInput, setRenewInput] = useState('');
-  const [catalogInput, setCatalogInput] = useState('');
-  const [catalogField, setCatalogField] = useState('all');
-  const [patronInput, setPatronInput] = useState('');
+  // Dropdown state for Layout Style Selector
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // Notifications toggle/popover state
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Notifications toggle state
   const [showNotices, setShowNotices] = useState(false);
 
-  // Form submission handler
+  // Unified search submit
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    const query = searchValue.trim();
+    if (!query) return;
 
-    if (activeSearchTab === 'checkout') {
-      if (checkoutInput.trim()) {
-        onDirectCheckOut(checkoutInput.trim());
-      }
-    } else if (activeSearchTab === 'checkin') {
-      if (checkinInput.trim()) {
-        onDirectCheckIn(checkinInput.trim());
-      }
-    } else if (activeSearchTab === 'renew') {
-      if (renewInput.trim()) {
-        onDirectRenew(renewInput.trim());
-      }
-    } else if (activeSearchTab === 'catalog') {
-      onSearchCatalog(catalogInput.trim(), catalogField);
-    } else if (activeSearchTab === 'patrons') {
-      onSearchPatrons(patronInput.trim());
+    if (searchScope === 'checkout') {
+      onDirectCheckOut(query);
+    } else if (searchScope === 'checkin') {
+      onDirectCheckIn(query);
+    } else if (searchScope === 'patrons') {
+      onSearchPatrons(query);
+    } else {
+      onSearchCatalog(query, 'all');
     }
   };
 
+  const currentSet = layoutSets[activeLayoutSet] || {
+    id: 'modern-sleek',
+    name: 'Modern Sleek',
+    icon: '✦',
+    tagline: 'Minimalist whitespace & airy grid cards',
+    badge: 'Popular'
+  };
+
   return (
-    <header className="koha-staff-header">
-      {/* Top Utility Bar */}
-      <div className="koha-top-utility">
-        {/* Koha Logo & Brand */}
-        <div className="koha-brand-container" onClick={onNavigateHome} title="Go to Koha Staff Home">
-          <div className="koha-logo">
-            <span className="koha-text">koha</span>
-            <span className="koha-dot"></span>
+    <header className="modern-header">
+      {/* Main Top Bar */}
+      <div className="modern-top-bar">
+        {/* Modern Brand Logo */}
+        <div className="modern-brand" onClick={onNavigateHome} title="Return to Library Home">
+          <div className="modern-brand-glyph">
+            <BookOpen size={20} />
           </div>
-          <div className="koha-brand-meta">
-            <span className="koha-tagline">staff client</span>
-            <span className="koha-ver">v24.05 ILS</span>
+          <div className="modern-brand-info">
+            <span className="modern-brand-title">The Philippine Artisan</span>
+            <span className="modern-brand-sub">Digital Library</span>
           </div>
         </div>
 
-        {/* Top Center Quick Info / Branch Selector */}
-        <div className="koha-top-center">
-          <div className="koha-location-badge" title="Active Koha Circulation Branch">
-            <Building2 size={15} className="koha-location-icon" />
-            <span className="koha-location-label">Library:</span>
+        {/* Unified Modern Search Input */}
+        <form className="modern-search-bar" onSubmit={handleSearchSubmit}>
+          <div className="modern-search-scope-wrapper">
             <select
-              className="koha-branch-dropdown"
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
+              className="modern-search-scope-select"
+              value={searchScope}
+              onChange={(e) => setSearchScope(e.target.value)}
+              title="Search Scope"
             >
-              {systemPrefs.branches.map((b) => (
-                <option key={b.code} value={b.name}>
-                  {b.name} ({b.code})
-                </option>
-              ))}
+              <option value="catalog">Catalog</option>
+              <option value="patrons">Patrons</option>
+              <option value="checkout">Check Out</option>
+              <option value="checkin">Check In</option>
             </select>
-          </div>
-        </div>
-
-        {/* Top Right Staff Tools */}
-        <div className="koha-top-right">
-          {/* Quick Staff Links: Cart & Lists */}
-          <div className="koha-header-links">
-            <button
-              className="koha-top-btn"
-              onClick={() => onSearchCatalog('', 'all')}
-              title="View Library Cart"
-            >
-              <ShoppingCart size={15} />
-              <span>Cart</span>
-              <span className="koha-mini-pill">0</span>
-            </button>
-
-            <button
-              className="koha-top-btn"
-              onClick={() => onSearchCatalog('', 'all')}
-              title="Public and Staff Lists"
-            >
-              <ListFilter size={15} />
-              <span>Lists</span>
-            </button>
+            <ChevronDown size={12} className="modern-scope-chevron" />
           </div>
 
-          {/* System Notices Notification */}
-          <div style={{ position: 'relative' }}>
+          <div className="modern-search-input-wrapper">
+            <Search size={16} className="modern-search-icon" />
+            <input
+              type="text"
+              className="modern-search-input"
+              placeholder={
+                searchScope === 'catalog'
+                  ? 'Search titles, authors, ISBN, call numbers...'
+                  : searchScope === 'patrons'
+                  ? 'Search patrons by name, email, or card ID...'
+                  : searchScope === 'checkout'
+                  ? 'Enter patron card number to check out...'
+                  : 'Scan or enter book barcode to return...'
+              }
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </div>
+
+          <button type="submit" className="modern-search-submit-btn" title="Search">
+            <Search size={14} />
+            <span>Search</span>
+          </button>
+        </form>
+
+        {/* Right Utility Controls */}
+        <div className="modern-top-right">
+          {/* Layout Style Dropdown Selector */}
+          <div className="layout-dropdown-wrapper" ref={dropdownRef}>
             <button
-              className="koha-icon-tool-btn"
-              onClick={() => setShowNotices(!showNotices)}
-              title="Staff System Notices"
+              type="button"
+              className={`layout-dropdown-trigger ${isDropdownOpen ? 'active' : ''}`}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              title="Select Whole-App Layout Style"
+              aria-haspopup="listbox"
+              aria-expanded={isDropdownOpen}
             >
-              <Bell size={16} />
-              <span className="koha-notice-badge">2</span>
+              <span className="layout-dropdown-icon">{currentSet.icon}</span>
+              <div className="layout-dropdown-text-group">
+                <span className="layout-dropdown-caption">Layout Style</span>
+                <span className="layout-dropdown-current-name">{currentSet.name}</span>
+              </div>
+              <ChevronDown size={14} className={`layout-chevron ${isDropdownOpen ? 'rotated' : ''}`} />
             </button>
-            {showNotices && (
-              <div className="koha-notices-dropdown">
-                <div className="koha-notices-header">
-                  <strong>Staff Notices & Broadcasts</strong>
-                  <span className="text-muted" style={{ fontSize: '0.75rem' }}>Today</span>
+
+            {isDropdownOpen && (
+              <div className="layout-dropdown-menu" role="listbox">
+                <div className="layout-dropdown-menu-header">
+                  <span>SELECT WHOLE-APP LAYOUT</span>
                 </div>
-                <div className="koha-notice-item">
-                  <div className="koha-notice-title">Koha Nightly Cron Completed</div>
-                  <div className="koha-notice-desc">Circulation logs synced; catalog records refreshed automatically.</div>
-                </div>
-                <div className="koha-notice-item">
-                  <div className="koha-notice-title">Hold Requests Pending</div>
-                  <div className="koha-notice-desc">{activeLoansCount} active loans tracked at {selectedBranch}.</div>
+                <div className="layout-dropdown-options">
+                  {Object.values(layoutSets).map((set) => {
+                    const isSelected = activeLayoutSet === set.id;
+                    return (
+                      <button
+                        key={set.id}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        className={`layout-dropdown-option ${isSelected ? 'selected' : ''}`}
+                        onClick={() => {
+                          onSelectLayoutSet && onSelectLayoutSet(set.id);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <span className="option-icon">{set.icon}</span>
+                        <div className="option-info">
+                          <div className="option-name-row">
+                            <span className="option-name">{set.name}</span>
+                            <span className="option-badge">{set.badge}</span>
+                          </div>
+                          <span className="option-tagline">{set.tagline}</span>
+                        </div>
+                        {isSelected && <Check size={16} className="option-check" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Theme Toggle (Classic Koha Light / Modern Dark) */}
-          <button
-            className="koha-icon-tool-btn"
-            onClick={() => setDarkMode(!darkMode)}
-            title={darkMode ? 'Switch to Classic Koha Light Theme' : 'Switch to Dark Theme'}
-          >
-            {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
+          {/* Library Branch Selector */}
+          <div className="modern-branch-pill" title="Active Branch">
+            <Building2 size={14} className="modern-branch-icon" />
+            <select
+              className="modern-branch-select"
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+            >
+              {systemPrefs?.branches?.map((b) => (
+                <option key={b.code} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="modern-branch-chevron" />
+          </div>
 
-          {/* Koha Manual Help */}
-          <a
-            href="https://koha-community.org/documentation/"
-            target="_blank"
-            rel="noreferrer"
-            className="koha-top-btn"
-            title="Open Koha Staff Manual"
-          >
-            <HelpCircle size={15} />
-            <span>Help</span>
-          </a>
+          {/* System Notices Popover */}
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className="modern-icon-btn"
+              onClick={() => setShowNotices(!showNotices)}
+              title="System Notices"
+            >
+              <Bell size={16} />
+              <span className="modern-notice-indicator"></span>
+            </button>
+            {showNotices && (
+              <div className="modern-notices-popover">
+                <div className="modern-notices-header">
+                  <strong>System Notices</strong>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Today</span>
+                </div>
+                <div className="modern-notice-item">
+                  <div className="modern-notice-item-title">System Health Normal</div>
+                  <div className="modern-notice-item-desc">All circulation records and holdings are synced.</div>
+                </div>
+                <div className="modern-notice-item">
+                  <div className="modern-notice-item-title">Active Loans Queue</div>
+                  <div className="modern-notice-item-desc">{activeLoansCount} active loans tracked across branches.</div>
+                </div>
+              </div>
+            )}
+          </div>
 
-          {/* Logged in Staff Badge */}
-          <div className="koha-staff-badge" title="Logged in as Superuser Staff">
-            <div className="koha-staff-avatar">
+          {/* User Profile Pill */}
+          <div className="modern-user-pill" title="Logged in as Librarian Admin">
+            <div className="modern-avatar">
               <User size={14} />
             </div>
-            <div className="koha-staff-info">
-              <span className="koha-staff-name">Librarian Admin</span>
-              <span className="koha-staff-role">Superuser</span>
+            <div className="modern-user-meta">
+              <span className="modern-user-name">Librarian</span>
+              <span className="modern-user-role">Superuser</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Persistent Multi-Tab Koha Staff Search Bar */}
-      <div className="koha-persistent-search">
-        <div className="koha-search-tabs">
-          <button
-            type="button"
-            className={`koha-tab-btn ${activeSearchTab === 'checkout' ? 'active' : ''}`}
-            onClick={() => setActiveSearchTab('checkout')}
-          >
-            <Repeat size={14} />
-            <span>Check out</span>
-          </button>
-
-          <button
-            type="button"
-            className={`koha-tab-btn ${activeSearchTab === 'checkin' ? 'active' : ''}`}
-            onClick={() => setActiveSearchTab('checkin')}
-          >
-            <CheckCircle2 size={14} />
-            <span>Check in</span>
-          </button>
-
-          <button
-            type="button"
-            className={`koha-tab-btn ${activeSearchTab === 'renew' ? 'active' : ''}`}
-            onClick={() => setActiveSearchTab('renew')}
-          >
-            <RefreshCw size={14} />
-            <span>Renew</span>
-          </button>
-
-          <button
-            type="button"
-            className={`koha-tab-btn ${activeSearchTab === 'catalog' ? 'active' : ''}`}
-            onClick={() => setActiveSearchTab('catalog')}
-          >
-            <BookOpen size={14} />
-            <span>Search the catalog</span>
-          </button>
-
-          <button
-            type="button"
-            className={`koha-tab-btn ${activeSearchTab === 'patrons' ? 'active' : ''}`}
-            onClick={() => setActiveSearchTab('patrons')}
-          >
-            <Users size={14} />
-            <span>Search patrons</span>
-          </button>
-        </div>
-
-        {/* Tab Search Form Inputs */}
-        <form className="koha-search-form" onSubmit={handleSearchSubmit}>
-          {activeSearchTab === 'checkout' && (
-            <div className="koha-form-row">
-              <label htmlFor="checkout-input" className="koha-input-prefix">
-                Check out to:
-              </label>
-              <input
-                id="checkout-input"
-                type="text"
-                className="koha-search-input"
-                placeholder="Enter patron card number (e.g. 2390100491) or surname..."
-                value={checkoutInput}
-                onChange={(e) => setCheckoutInput(e.target.value)}
-                autoFocus
-              />
-              <button type="submit" className="koha-btn-submit koha-btn-checkout">
-                <Repeat size={15} />
-                <span>Check out</span>
-              </button>
-            </div>
-          )}
-
-          {activeSearchTab === 'checkin' && (
-            <div className="koha-form-row">
-              <label htmlFor="checkin-input" className="koha-input-prefix">
-                Scan barcode:
-              </label>
-              <input
-                id="checkin-input"
-                type="text"
-                className="koha-search-input"
-                placeholder="Scan or enter item barcode (e.g. 399990148201)..."
-                value={checkinInput}
-                onChange={(e) => setCheckinInput(e.target.value)}
-                autoFocus
-              />
-              <button type="submit" className="koha-btn-submit koha-btn-checkin">
-                <CheckCircle2 size={15} />
-                <span>Check in</span>
-              </button>
-            </div>
-          )}
-
-          {activeSearchTab === 'renew' && (
-            <div className="koha-form-row">
-              <label htmlFor="renew-input" className="koha-input-prefix">
-                Renew barcode:
-              </label>
-              <input
-                id="renew-input"
-                type="text"
-                className="koha-search-input"
-                placeholder="Scan or enter item barcode to renew loan..."
-                value={renewInput}
-                onChange={(e) => setRenewInput(e.target.value)}
-                autoFocus
-              />
-              <button type="submit" className="koha-btn-submit koha-btn-renew">
-                <RefreshCw size={15} />
-                <span>Renew</span>
-              </button>
-            </div>
-          )}
-
-          {activeSearchTab === 'catalog' && (
-            <div className="koha-form-row">
-              <select
-                className="koha-field-select"
-                value={catalogField}
-                onChange={(e) => setCatalogField(e.target.value)}
-              >
-                <option value="all">Keyword</option>
-                <option value="title">Title</option>
-                <option value="author">Author</option>
-                <option value="subject">Subject</option>
-                <option value="isbn">ISBN</option>
-                <option value="callnum">Call Number</option>
-              </select>
-              <input
-                type="text"
-                className="koha-search-input"
-                placeholder="Search the Koha catalog (e.g., Computer Science, Gatsby, 978-013)..."
-                value={catalogInput}
-                onChange={(e) => setCatalogInput(e.target.value)}
-              />
-              <button type="submit" className="koha-btn-submit koha-btn-search">
-                <Search size={15} />
-                <span>Search</span>
-              </button>
-            </div>
-          )}
-
-          {activeSearchTab === 'patrons' && (
-            <div className="koha-form-row">
-              <input
-                type="text"
-                className="koha-search-input"
-                placeholder="Search patrons by name, card number (e.g. 2390100491), or email..."
-                value={patronInput}
-                onChange={(e) => setPatronInput(e.target.value)}
-                autoFocus
-              />
-              <button type="submit" className="koha-btn-submit koha-btn-search">
-                <Search size={15} />
-                <span>Search patrons</span>
-              </button>
-            </div>
-          )}
-        </form>
-      </div>
+      {/* Top Nav Shell Horizontal Module Navigation Bar */}
+      {effectiveLayout?.shellLayout === 'top-nav' && (
+        <nav className="modern-sub-nav">
+          <div className="modern-sub-nav-inner">
+            {[
+              { id: 'dashboard', label: 'Home', icon: Home },
+              { id: 'catalog', label: 'Catalog', icon: BookOpen, badge: stats?.totalBooks },
+              { id: 'circulation', label: 'Circulation', icon: Repeat, badge: stats?.activeLoans },
+              { id: 'patrons', label: 'Patrons', icon: Users, badge: stats?.totalPatrons },
+              { id: 'marc', label: 'MARC21', icon: FileCode },
+              { id: 'serials', label: 'Serials', icon: Newspaper },
+              { id: 'reports', label: 'Reports', icon: BarChart3 },
+              { id: 'settings', label: 'Settings', icon: Settings }
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`modern-nav-tab ${isActive ? 'active' : ''}`}
+                  onClick={() => setActiveTab && setActiveTab(item.id)}
+                >
+                  <Icon size={15} />
+                  <span>{item.label}</span>
+                  {item.badge !== undefined && item.badge !== null && (
+                    <span className="modern-tab-badge">{item.badge}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </header>
   );
 }

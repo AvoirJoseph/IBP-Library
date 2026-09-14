@@ -1,22 +1,34 @@
 import React, { useState } from 'react';
-import { BarChart3, Play, Database, Table, Download } from 'lucide-react';
+import {
+  BarChart3,
+  Play,
+  Database,
+  Table,
+  Download,
+  Terminal,
+  Clock,
+  Sparkles,
+  FileSpreadsheet
+} from 'lucide-react';
 import { MOCK_SQL_QUERIES } from '../mockData';
 
-export default function ReportsView({ books, patrons, transactions, showToast }) {
+export default function ReportsView({ books = [], patrons = [], transactions = [], showToast }) {
   const [selectedQueryIndex, setSelectedQueryIndex] = useState(0);
   const [customSql, setCustomSql] = useState(MOCK_SQL_QUERIES[0].sql);
   const [queryResults, setQueryResults] = useState(null);
+  const [executionTime, setExecutionTime] = useState(null);
 
   const handleSelectQuery = (idx) => {
     setSelectedQueryIndex(idx);
     setCustomSql(MOCK_SQL_QUERIES[idx].sql);
     setQueryResults(null);
+    setExecutionTime(null);
   };
 
   const handleExecuteQuery = () => {
+    const start = performance.now();
     let result = [];
     if (selectedQueryIndex === 0) {
-      // Overdue Loans & Days Overdue
       result = transactions
         .filter((t) => t.status === 'Overdue')
         .map((t) => ({
@@ -24,19 +36,19 @@ export default function ReportsView({ books, patrons, transactions, showToast })
           Book_Title: t.bookTitle,
           Patron_Name: t.patronName,
           Due_Date: t.dueDate,
-          Days_Overdue: 14
+          Days_Overdue: 14,
+          Fine_Amount: '$7.00'
         }));
     } else if (selectedQueryIndex === 1) {
-      // Top Borrowed Items
       result = books.map((b) => ({
         Title: b.title,
         Author: b.author,
         Call_Number: b.callNumber,
-        Total_Checkouts: b.copies - b.availableCopies + 2,
+        Total_Checkouts: (Number(b.copies) || 1) - (Number(b.availableCopies) || 0) + 3,
+        Branch: b.branch,
         Status: b.status
       }));
     } else {
-      // Active Borrowers & Loan Count
       result = patrons
         .filter((p) => p.borrowedCount > 0)
         .map((p) => ({
@@ -44,39 +56,61 @@ export default function ReportsView({ books, patrons, transactions, showToast })
           Patron_Name: p.name,
           Category: p.category,
           Active_Loans: `${p.borrowedCount} items`,
+          Home_Branch: p.branch,
           Status: p.status
         }));
     }
 
+    const elapsed = (performance.now() - start).toFixed(1);
+    setExecutionTime(elapsed);
     setQueryResults(result);
-    showToast(`SQL Query executed successfully! Returned ${result.length} rows.`, 'success');
+    if (showToast) {
+      showToast(`Koha SQL query executed in ${elapsed}ms! Returned ${result.length} rows.`, 'success');
+    }
+  };
+
+  const handleExportCsv = () => {
+    if (!queryResults || queryResults.length === 0) return;
+    const headers = Object.keys(queryResults[0]).join(',');
+    const rows = queryResults.map((row) => Object.values(row).join(',')).join('\n');
+    const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(headers + '\n' + rows);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', csvContent);
+    downloadAnchor.setAttribute('download', `koha_report_${Date.now()}.csv`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    if (showToast) showToast('Exported CSV spreadsheet', 'info');
   };
 
   return (
-    <div>
+    <div className="reports-module-container">
+      {/* Page Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">
             <BarChart3 size={28} className="text-primary" />
-            Koha Reports & SQL Query Runner
+            <span>Koha Analytics & SQL Query Runner</span>
           </h1>
           <p className="page-subtitle">
-            Execute SQL queries, generate circulation statistics, and export analytics
+            Execute SQL queries directly against Koha ILS tables (biblio, items, borrowers, issues), analyze circulation metrics, and export data
           </p>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        {/* Preset SQL Dropdown */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        {/* Preset Query Library */}
         <div className="koha-card">
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
             <Database size={18} className="text-primary" />
-            Saved Koha SQL Query Library
-          </h3>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Saved Koha SQL Query Library</h3>
+          </div>
+
           <div className="form-group">
             <label className="form-label">Select Pre-written Koha SQL Report</label>
             <select
               className="form-select"
+              style={{ height: '42px', fontSize: '0.92rem' }}
               value={selectedQueryIndex}
               onChange={(e) => handleSelectQuery(Number(e.target.value))}
             >
@@ -87,48 +121,96 @@ export default function ReportsView({ books, patrons, transactions, showToast })
               ))}
             </select>
           </div>
+
+          <div className="catalog-subject-chips-row" style={{ marginTop: '0.75rem' }}>
+            <span className="catalog-subject-chip-label">Quick Preset:</span>
+            {MOCK_SQL_QUERIES.map((q, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`catalog-subject-pill ${selectedQueryIndex === idx ? 'active' : ''}`}
+                onClick={() => handleSelectQuery(idx)}
+              >
+                {q.name.split(' ')[0]}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Query Editor & Run Controls */}
-        <div className="koha-card">
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Play size={18} style={{ color: 'var(--success)' }} />
-            SQL Console Controls
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            Run direct SQL queries against database tables (biblio, items, borrowers, accountlines).
-          </p>
-          <button className="btn btn-success" style={{ width: '100%' }} onClick={handleExecuteQuery}>
-            <Play size={16} /> Execute SQL Query
-          </button>
+        {/* Execution Terminal */}
+        <div className="koha-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <Terminal size={18} className="text-primary" />
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>SQL Execution Console</h3>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+              Run live transactional SQL queries against database tables (biblio, items, borrowers, accountlines).
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ flex: 1, justifyContent: 'center' }}
+              onClick={handleExecuteQuery}
+            >
+              <Play size={16} />
+              <span>Execute SQL Query</span>
+            </button>
+            {queryResults && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleExportCsv}
+              >
+                <Download size={16} />
+                <span>Export CSV</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* SQL Editor Textarea */}
-      <div className="koha-card" style={{ marginBottom: '1.5rem' }}>
-        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>SQL Statement Editor (ANSI SQL Syntax)</span>
-          <span className="mono-text" style={{ fontSize: '0.75rem' }}>DB: koha_library_main</span>
-        </label>
+      {/* Code Editor Box */}
+      <div className="koha-card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+            SQL Query Syntax
+          </span>
+          {executionTime && (
+            <span className="badge badge-available">
+              <Clock size={12} /> Executed in {executionTime}ms
+            </span>
+          )}
+        </div>
         <textarea
-          className="form-textarea mono-text"
-          rows={4}
+          className="form-input mono-text"
+          style={{
+            minHeight: '120px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.88rem',
+            background: 'var(--bg-input)',
+            lineHeight: 1.5
+          }}
           value={customSql}
           onChange={(e) => setCustomSql(e.target.value)}
-          style={{ color: '#38bdf8', fontSize: '0.9rem' }}
         />
       </div>
 
-      {/* SQL Results Table */}
+      {/* Query Output Table */}
       {queryResults && (
-        <div className="koha-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="koha-card" style={{ padding: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Table size={18} className="text-primary" />
-              Query Results ({queryResults.length} records returned)
-            </h3>
-            <button className="btn btn-secondary btn-sm" onClick={() => showToast('Exported CSV file', 'info')}>
-              <Download size={14} /> Export CSV
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>
+                Query Result Set ({queryResults.length} rows returned)
+              </h3>
+            </div>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={handleExportCsv}>
+              <FileSpreadsheet size={14} /> Export to Spreadsheet
             </button>
           </div>
 
@@ -136,8 +218,8 @@ export default function ReportsView({ books, patrons, transactions, showToast })
             <table className="koha-table">
               <thead>
                 <tr>
-                  {Object.keys(queryResults[0] || {}).map((col) => (
-                    <th key={col}>{col.replace(/_/g, ' ')}</th>
+                  {Object.keys(queryResults[0] || {}).map((header, idx) => (
+                    <th key={idx}>{header.replace(/_/g, ' ')}</th>
                   ))}
                 </tr>
               </thead>
@@ -145,7 +227,13 @@ export default function ReportsView({ books, patrons, transactions, showToast })
                 {queryResults.map((row, rIdx) => (
                   <tr key={rIdx}>
                     {Object.values(row).map((val, cIdx) => (
-                      <td key={cIdx}>{val}</td>
+                      <td key={cIdx}>
+                        {typeof val === 'string' && (val.includes('B-') || val.includes('3999') || val.includes('QA')) ? (
+                          <span className="mono-text">{val}</span>
+                        ) : (
+                          val
+                        )}
+                      </td>
                     ))}
                   </tr>
                 ))}

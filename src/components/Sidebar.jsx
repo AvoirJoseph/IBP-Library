@@ -24,24 +24,29 @@ export default function Sidebar({
   circSubTab,
   setCircSubTab,
   onOpenAddBook,
-  onOpenAddPatron
+  onOpenAddPatron,
+  shellLayout = 'sidebar'
 }) {
+  if (shellLayout === 'top-nav') {
+    return null;
+  }
+
   const modules = [
-    { id: 'dashboard', label: 'Koha Home', icon: Home, badge: null },
+    { id: 'dashboard', label: 'Home', icon: Home, badge: null },
     { id: 'circulation', label: 'Circulation', icon: Repeat, badge: stats.activeLoans },
     { id: 'patrons', label: 'Patrons', icon: Users, badge: stats.totalPatrons },
-    { id: 'catalog', label: 'Catalog (OPAC)', icon: BookOpen, badge: stats.totalBooks },
-    { id: 'marc', label: 'MARC21 Cataloging', icon: FileCode, badge: 'MARC' },
+    { id: 'catalog', label: 'Catalog & Holdings', icon: BookOpen, badge: stats.totalBooks },
+    { id: 'marc', label: 'MARC21 Editor', icon: FileCode, badge: 'MARC' },
     { id: 'serials', label: 'Serials & Acq.', icon: Newspaper, badge: 'Active' },
     { id: 'reports', label: 'Reports & SQL', icon: BarChart3, badge: null },
-    { id: 'settings', label: 'Koha Admin', icon: Settings, badge: null }
+    { id: 'settings', label: 'Administration', icon: Settings, badge: null }
   ];
 
   return (
-    <aside className="koha-staff-sidebar">
+    <aside className={`koha-staff-sidebar ${shellLayout === 'compact-rail' ? 'compact-rail' : ''}`}>
       {/* Sidebar Header / Module Title */}
       <div className="koha-sidebar-heading">
-        <span>STAFF MODULES</span>
+        <span>LIBRARY MODULES</span>
       </div>
 
       {/* Main Module List */}
@@ -55,6 +60,7 @@ export default function Sidebar({
                 type="button"
                 className={`koha-nav-item ${isActive ? 'active' : ''}`}
                 onClick={() => setActiveTab(item.id)}
+                title={item.label}
               >
                 <div className="koha-nav-label-group">
                   <Icon size={17} className="koha-nav-icon" />

@@ -20,6 +20,57 @@ import {
   KOHA_SYSTEM_PREFS
 } from './mockData';
 
+export const LAYOUT_SETS = {
+  'showcase': {
+    id: 'showcase',
+    name: 'Curated Showcase',
+    icon: '✦',
+    tagline: 'Contemporary gallery layout, 3D virtual bookshelf, illuminated pedestals, and visual analytics',
+    shellLayout: 'top-nav',
+    density: 'spacious',
+    themeStyle: 'emerald',
+    catalogLayout: 'bookshelf',
+    dashboardLayout: 'analytics',
+    badge: 'Flagship'
+  },
+  'modern-sleek': {
+    id: 'modern-sleek',
+    name: 'Modern Sleek',
+    icon: '❖',
+    tagline: 'Minimalist whitespace, floating top navigation, and airy modern grid cards',
+    shellLayout: 'top-nav',
+    density: 'spacious',
+    themeStyle: 'modern-sleek',
+    catalogLayout: 'grid',
+    dashboardLayout: 'launchpad',
+    badge: 'Popular'
+  },
+  'executive': {
+    id: 'executive',
+    name: 'Executive Workspace',
+    icon: '◈',
+    tagline: 'Streamlined 68px rail, circulation desk operations, and clean tabular data',
+    shellLayout: 'compact-rail',
+    density: 'spacious',
+    themeStyle: 'oxford',
+    catalogLayout: 'table',
+    dashboardLayout: 'operational',
+    badge: 'Productivity'
+  },
+  'academic': {
+    id: 'academic',
+    name: 'Academic Editorial',
+    icon: '🏛',
+    tagline: 'Classic 240px sidebar, regal plum palette, and detailed OPAC MARC citations',
+    shellLayout: 'sidebar',
+    density: 'spacious',
+    themeStyle: 'plum',
+    catalogLayout: 'opac',
+    dashboardLayout: 'launchpad',
+    badge: 'Scholarly'
+  }
+};
+
 export default function App() {
   // Main Data States
   const [books, setBooks] = useState(INITIAL_BOOKS);
@@ -27,13 +78,36 @@ export default function App() {
   const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
   const [systemPrefs, setSystemPrefs] = useState(KOHA_SYSTEM_PREFS);
 
+  // App Unified Layout Set State with LocalStorage Persistence (Defaults to Curated Showcase)
+  const [activeLayoutSet, setActiveLayoutSet] = useState(() => {
+    try {
+      const saved = localStorage.getItem('koha_active_layout_set');
+      // If user had previous default or not saved, default to showcase
+      if (!saved || saved === 'modern-sleek') {
+        return 'showcase';
+      }
+      return LAYOUT_SETS[saved] ? saved : 'showcase';
+    } catch {
+      return 'showcase';
+    }
+  });
+
+  const effectiveLayout = LAYOUT_SETS[activeLayoutSet] || LAYOUT_SETS['showcase'];
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('koha_active_layout_set', activeLayoutSet);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [activeLayoutSet]);
+
   // App UI States
   const [activeTab, setActiveTab] = useState('dashboard');
   const [circSubTab, setCircSubTab] = useState('checkout');
   const [incomingBarcode, setIncomingBarcode] = useState('');
   const [incomingPatron, setIncomingPatron] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('Main Library');
-  const [darkMode, setDarkMode] = useState(false); // Default to clean classic Koha staff light theme
 
   // Search Bar States
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,16 +128,30 @@ export default function App() {
     }, 4000);
   };
 
-  // Toggle Theme Class on body
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-theme');
-      document.body.classList.remove('light-theme');
-    } else {
-      document.body.classList.add('light-theme');
-      document.body.classList.remove('dark-theme');
+  const handleSelectLayoutSet = (setId) => {
+    if (LAYOUT_SETS[setId]) {
+      setActiveLayoutSet(setId);
+      showToast(`Activated layout style: ${LAYOUT_SETS[setId].name}`, 'info');
     }
-  }, [darkMode]);
+  };
+
+  // Enforce Light Mode on body with active palette and layout set
+  useEffect(() => {
+    const bodyClasses = document.body.classList;
+    bodyClasses.add('light-theme');
+    bodyClasses.remove('dark-theme');
+
+    // Remove previous theme-* and layout-set-* classes
+    ['theme-modern-sleek', 'theme-plum', 'theme-oxford', 'theme-emerald', 'theme-archival', 'theme-amber', 'theme-midnight'].forEach((c) =>
+      bodyClasses.remove(c)
+    );
+    ['layout-set-modern-sleek', 'layout-set-executive', 'layout-set-academic', 'layout-set-showcase'].forEach((c) =>
+      bodyClasses.remove(c)
+    );
+
+    bodyClasses.add(`theme-${effectiveLayout.themeStyle}`);
+    bodyClasses.add(`layout-set-${activeLayoutSet}`);
+  }, [activeLayoutSet, effectiveLayout.themeStyle]);
 
   // Navigate module helper (used by launchpad, search bar, etc.)
   const handleNavigateModule = (moduleId, subAction = null) => {
@@ -227,14 +315,12 @@ export default function App() {
   const activeLoans = transactions.filter((t) => t.status === 'Issued' || t.status === 'Overdue').length;
 
   return (
-    <div className="app-container">
-      {/* Authentic Koha Staff Navbar with Multi-Tab Search Bar */}
+    <div className={`app-container layout-set-${activeLayoutSet} shell-${effectiveLayout.shellLayout} density-${effectiveLayout.density} theme-${effectiveLayout.themeStyle}`}>
+      {/* Authentic Koha Staff Navbar with Multi-Tab Search Bar & Layout Set Selector */}
       <Navbar
         systemPrefs={systemPrefs}
         selectedBranch={selectedBranch}
         setSelectedBranch={setSelectedBranch}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
         onNavigateHome={() => setActiveTab('dashboard')}
         onDirectCheckOut={handleDirectCheckOut}
         onDirectCheckIn={handleDirectCheckIn}
@@ -242,6 +328,17 @@ export default function App() {
         onSearchCatalog={handleSearchCatalog}
         onSearchPatrons={handleSearchPatrons}
         activeLoansCount={activeLoans}
+        activeLayoutSet={activeLayoutSet}
+        onSelectLayoutSet={handleSelectLayoutSet}
+        layoutSets={LAYOUT_SETS}
+        effectiveLayout={effectiveLayout}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        stats={{
+          activeLoans,
+          totalBooks: books.length,
+          totalPatrons: patrons.length
+        }}
       />
 
       {/* Koha Breadcrumbs Bar */}
@@ -267,6 +364,7 @@ export default function App() {
             totalBooks: books.length,
             totalPatrons: patrons.length
           }}
+          shellLayout={effectiveLayout.shellLayout}
         />
 
         {/* Dynamic Content View */}
@@ -289,9 +387,13 @@ export default function App() {
               onOpenAddBook={() => setShowAddBookModal(true)}
               onOpenAddPatron={() => setActiveTab('patrons')}
               onSelectBook={(bk) => setSelectedBook(bk)}
+              onOpenCheckOutForItem={handleOpenCheckOutForItem}
               onCheckInItem={handleCheckInItem}
               selectedBranch={selectedBranch}
               systemPrefs={systemPrefs}
+              effectiveLayout={effectiveLayout}
+              activeLayoutSet={activeLayoutSet}
+              showToast={showToast}
             />
           )}
 
@@ -305,6 +407,8 @@ export default function App() {
               onOpenAddBook={() => setShowAddBookModal(true)}
               onOpenCheckOutForItem={handleOpenCheckOutForItem}
               systemPrefs={systemPrefs}
+              effectiveLayout={effectiveLayout}
+              activeLayoutSet={activeLayoutSet}
             />
           )}
 
@@ -359,6 +463,9 @@ export default function App() {
               systemPrefs={systemPrefs}
               setSystemPrefs={setSystemPrefs}
               showToast={showToast}
+              activeLayoutSet={activeLayoutSet}
+              onSelectLayoutSet={handleSelectLayoutSet}
+              layoutSets={LAYOUT_SETS}
             />
           )}
         </main>

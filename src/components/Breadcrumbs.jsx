@@ -8,14 +8,14 @@ export default function Breadcrumbs({
   selectedBookTitle
 }) {
   const tabNames = {
-    dashboard: 'Koha Home',
+    dashboard: 'Home',
     circulation: 'Circulation',
     patrons: 'Patrons',
-    catalog: 'Catalog (OPAC)',
+    catalog: 'Catalog',
     marc: 'MARC21 Cataloging',
     serials: 'Serials & Acquisitions',
-    reports: 'Reports & Guided SQL',
-    settings: 'Koha Administration'
+    reports: 'Reports & SQL Analytics',
+    settings: 'Administration'
   };
 
   const circSubTabNames = {

@@ -9,16 +9,24 @@ import {
   Building2,
   AlertCircle,
   X,
-  Printer
+  Printer,
+  Grid,
+  Table,
+  CheckCircle2,
+  Tag,
+  ShieldCheck,
+  Repeat
 } from 'lucide-react';
 
 export default function PatronsView({
-  patrons,
+  patrons = [],
   onAddPatron,
-  systemPrefs,
+  systemPrefs = { branches: [] },
   showToast
 }) {
   const [patronSearch, setPatronSearch] = useState('');
+  const [patronViewMode, setPatronViewMode] = useState('cards'); // 'cards' | 'table'
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedPatron, setSelectedPatron] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -27,19 +35,28 @@ export default function PatronsView({
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newCategory, setNewCategory] = useState('Student');
-  const [newBranch, setNewBranch] = useState(systemPrefs.branches[0].name);
+  const [newBranch, setNewBranch] = useState(systemPrefs.branches[0]?.name || 'Main Library');
 
-  const filteredPatrons = patrons.filter((p) =>
-    p.name.toLowerCase().includes(patronSearch.toLowerCase()) ||
-    p.cardNum.includes(patronSearch) ||
-    p.email.toLowerCase().includes(patronSearch.toLowerCase()) ||
-    p.category.toLowerCase().includes(patronSearch.toLowerCase())
-  );
+  const categories = ['All', 'Student', 'Faculty', 'Research Fellow', 'Guest / Visitor'];
+
+  const filteredPatrons = patrons.filter((p) => {
+    const q = patronSearch.toLowerCase().trim();
+    const matchesQuery =
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      p.cardNum.includes(q) ||
+      p.email.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.branch.toLowerCase().includes(q);
+
+    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    return matchesQuery && matchesCategory;
+  });
 
   const handleCreatePatron = (e) => {
     e.preventDefault();
     if (!newName || !newEmail) {
-      showToast('Please fill in name and email!', 'warning');
+      if (showToast) showToast('Please fill in name and email!', 'warning');
       return;
     }
 
@@ -55,96 +72,255 @@ export default function PatronsView({
       status: 'Active',
       borrowedCount: 0,
       expiryDate: '2027-12-31',
-      avatarColor: 'rgba(65, 22, 76, 1)'
+      avatarColor: 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
     };
 
     onAddPatron(newPatron);
-    showToast(`Registered new patron ${newName} with card #${cardNum}!`, 'success');
+    if (showToast) {
+      showToast(`Issued new Koha library card #${cardNum} to ${newName}!`, 'success');
+    }
     setShowAddModal(false);
     setNewName('');
     setNewEmail('');
     setNewPhone('');
   };
 
+  const totalActiveLoans = patrons.reduce((sum, p) => sum + (Number(p.borrowedCount) || 0), 0);
+  const facultyCount = patrons.filter((p) => p.category === 'Faculty').length;
+  const studentCount = patrons.filter((p) => p.category === 'Student').length;
+
   return (
-    <div>
+    <div className="patrons-module-container">
       {/* Page Header */}
-      <div className="page-header">
+      <div className="page-header patrons-header-showcase">
         <div>
           <h1 className="page-title">
             <Users size={28} className="text-primary" />
-            Koha Patron Records & Categories
+            <span>Koha Patron Registry & Member Cards</span>
           </h1>
           <p className="page-subtitle">
-            Manage library members, issue cards, and track active loan privileges
+            Manage student & faculty library privileges, issue digital cards, and monitor active borrowing quotas
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-          <UserPlus size={16} />
-          Register New Patron
-        </button>
-      </div>
 
-      {/* Search Toolbar */}
-      <div className="koha-card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-        <div style={{ position: 'relative' }}>
-          <Search
-            size={18}
-            style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
-          />
-          <input
-            type="text"
-            className="form-input"
-            style={{ paddingLeft: '2.5rem' }}
-            placeholder="Search patron name, card number, email, or category..."
-            value={patronSearch}
-            onChange={(e) => setPatronSearch(e.target.value)}
-          />
+        <div className="patron-header-actions">
+          {/* Patron View Mode Switcher */}
+          <div className="catalog-view-switcher" role="radiogroup">
+            <button
+              type="button"
+              className={`catalog-view-btn ${patronViewMode === 'cards' ? 'active' : ''}`}
+              onClick={() => setPatronViewMode('cards')}
+              title="Digital Member Cards Grid"
+            >
+              <Grid size={14} />
+              <span>Member Cards</span>
+            </button>
+            <button
+              type="button"
+              className={`catalog-view-btn ${patronViewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setPatronViewMode('table')}
+              title="Registry Data Table"
+            >
+              <Table size={14} />
+              <span>Registry Table</span>
+            </button>
+          </div>
+
+          <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+            <UserPlus size={16} />
+            <span>Register New Patron</span>
+          </button>
         </div>
       </div>
 
-      {/* Patron Table */}
-      <div className="table-wrapper">
-        <table className="koha-table">
-          <thead>
-            <tr>
-              <th>Library Card #</th>
-              <th>Patron Name</th>
-              <th>Category</th>
-              <th>Home Branch</th>
-              <th>Active Loans</th>
-              <th>Card Expiry</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPatrons.map((patron) => (
-              <tr key={patron.id}>
-                <td><span className="mono-text">{patron.cardNum}</span></td>
-                <td style={{ fontWeight: 700 }}>{patron.name}</td>
-                <td><span className="badge badge-category">{patron.category}</span></td>
-                <td>{patron.branch}</td>
-                <td><strong>{patron.borrowedCount}</strong> items</td>
-                <td>{patron.expiryDate}</td>
-                <td>
-                  <span className={`badge ${patron.status === 'Active' ? 'badge-available' : 'badge-overdue'}`}>
-                    {patron.status}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => setSelectedPatron(patron)}
-                  >
-                    <CreditCard size={14} /> Library Card
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Patron Metric Banner */}
+      <div className="catalog-metric-bar">
+        <div className="catalog-metric-item">
+          <span className="catalog-metric-label">Total Patrons</span>
+          <span className="catalog-metric-value">{patrons.length}</span>
+        </div>
+        <div className="catalog-metric-divider" />
+        <div className="catalog-metric-item">
+          <span className="catalog-metric-label">Students Enrolled</span>
+          <span className="catalog-metric-value text-primary">{studentCount}</span>
+        </div>
+        <div className="catalog-metric-divider" />
+        <div className="catalog-metric-item">
+          <span className="catalog-metric-label">Faculty Accounts</span>
+          <span className="catalog-metric-value text-success">{facultyCount}</span>
+        </div>
+        <div className="catalog-metric-divider" />
+        <div className="catalog-metric-item">
+          <span className="catalog-metric-label">Current Borrowed Items</span>
+          <span className="catalog-metric-value">{totalActiveLoans} volumes</span>
+        </div>
       </div>
+
+      {/* Search & Category Filter Toolbar */}
+      <div className="koha-card catalog-search-card">
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ flex: 1, minWidth: '260px', position: 'relative' }}>
+            <Search
+              size={18}
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--text-muted)'
+              }}
+            />
+            <input
+              type="text"
+              className="form-input"
+              style={{ paddingLeft: '2.6rem' }}
+              placeholder="Search patron name, card number (e.g. 239014), email, or branch..."
+              value={patronSearch}
+              onChange={(e) => setPatronSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Category Filter Pills */}
+        <div className="catalog-subject-chips-row">
+          <span className="catalog-subject-chip-label">
+            <Tag size={13} />
+            <span>Category:</span>
+          </span>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`catalog-subject-pill ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat === 'All' ? 'All Member Tiers' : cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mode 1: Digital Member Cards Grid */}
+      {patronViewMode === 'cards' && (
+        <div className="patron-cards-grid">
+          {filteredPatrons.map((patron) => (
+            <div
+              key={patron.id}
+              className="patron-showcase-card"
+              onClick={() => setSelectedPatron(patron)}
+            >
+              <div className="patron-card-sheen" />
+              <div className="patron-showcase-header">
+                <div className="patron-showcase-brand">
+                  <span className="brand-title">Koha Library Card</span>
+                  <span className="brand-sub">{patron.branch}</span>
+                </div>
+                <span className="patron-category-badge">{patron.category}</span>
+              </div>
+
+              {/* EMV Microchip */}
+              <div className="patron-emv-chip">
+                <div className="chip-lines" />
+              </div>
+
+              <div className="patron-showcase-body">
+                <div
+                  className="patron-showcase-avatar"
+                  style={{
+                    backgroundColor: patron.avatarColor || 'var(--primary)'
+                  }}
+                >
+                  {patron.name.charAt(0)}
+                </div>
+                <div className="patron-showcase-info">
+                  <h4 className="patron-showcase-name">{patron.name}</h4>
+                  <span className="patron-showcase-email">{patron.email}</span>
+                  <span className="patron-showcase-expiry">Expires: {patron.expiryDate}</span>
+                </div>
+              </div>
+
+              <div className="patron-showcase-footer">
+                <div className="patron-barcode-box">
+                  <div className="barcode-lines">
+                    <div className="barcode-bar" style={{ width: '3px' }} />
+                    <div className="barcode-bar" style={{ width: '1px' }} />
+                    <div className="barcode-bar" style={{ width: '4px' }} />
+                    <div className="barcode-bar" style={{ width: '2px' }} />
+                    <div className="barcode-bar" style={{ width: '5px' }} />
+                    <div className="barcode-bar" style={{ width: '1px' }} />
+                    <div className="barcode-bar" style={{ width: '3px' }} />
+                  </div>
+                  <span className="mono-text barcode-num">{patron.cardNum}</span>
+                </div>
+                <div className="patron-showcase-loans">
+                  <span className="loans-label">Active Loans</span>
+                  <span className="loans-count">{patron.borrowedCount} items</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Mode 2: High-Density Table */}
+      {patronViewMode === 'table' && (
+        <div className="table-wrapper">
+          <table className="koha-table">
+            <thead>
+              <tr>
+                <th>Library Card #</th>
+                <th>Patron Name</th>
+                <th>Category</th>
+                <th>Home Branch</th>
+                <th>Active Loans</th>
+                <th>Card Expiry</th>
+                <th>Status</th>
+                <th>Card Verification</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPatrons.map((patron) => (
+                <tr key={patron.id} onClick={() => setSelectedPatron(patron)} style={{ cursor: 'pointer' }}>
+                  <td>
+                    <span className="mono-text table-callno-badge">{patron.cardNum}</span>
+                  </td>
+                  <td style={{ fontWeight: 700 }}>{patron.name}</td>
+                  <td>
+                    <span className="badge badge-category">{patron.category}</span>
+                  </td>
+                  <td>{patron.branch}</td>
+                  <td>
+                    <strong>{patron.borrowedCount}</strong> items
+                  </td>
+                  <td>{patron.expiryDate}</td>
+                  <td>
+                    <span
+                      className={`badge ${
+                        patron.status === 'Active' ? 'badge-available' : 'badge-loaned'
+                      }`}
+                    >
+                      {patron.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPatron(patron);
+                      }}
+                    >
+                      <CreditCard size={14} />
+                      <span>Inspect Card</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Add New Patron Modal */}
       {showAddModal && (
@@ -228,7 +404,11 @@ export default function PatronsView({
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowAddModal(false)}
+                >
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
@@ -240,7 +420,7 @@ export default function PatronsView({
         </div>
       )}
 
-      {/* Digital Library Card Visualizer Modal */}
+      {/* Deluxe Digital Library Card Modal */}
       {selectedPatron && (
         <div className="modal-overlay" onClick={() => setSelectedPatron(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
@@ -252,79 +432,74 @@ export default function PatronsView({
             </div>
 
             <div className="modal-body">
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #1f0b26 0%, #3e1649 100%)',
-                  border: '1px solid #c06ee0',
-                  borderRadius: '14px',
-                  padding: '1.5rem',
-                  color: 'white',
-                  position: 'relative',
-                  boxShadow: '0 8px 24px rgba(65, 22, 76, 0.4)'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#e4c4ef', fontWeight: 800 }}>
-                      Koha Integrated Library System
-                    </div>
-                    <div style={{ fontSize: '1rem', fontWeight: 800 }}>{selectedPatron.branch}</div>
+              <div className="patron-digital-card-preview">
+                <div className="patron-card-shine" />
+                <div className="patron-card-header">
+                  <div className="patron-card-brand">
+                    <span className="brand-small">Koha Integrated Library System</span>
+                    <span className="brand-branch">{selectedPatron.branch}</span>
                   </div>
-                  <span className="badge badge-category">{selectedPatron.category}</span>
+                  <span className="patron-tier-badge">{selectedPatron.category}</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div className="patron-emv-chip">
+                  <div className="chip-lines" />
+                </div>
+
+                <div className="patron-card-body">
                   <div
-                    style={{
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '50%',
-                      backgroundColor: selectedPatron.avatarColor || '#0ea5e9',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: '1.4rem'
-                    }}
+                    className="patron-avatar-circle"
+                    style={{ backgroundColor: selectedPatron.avatarColor || 'var(--primary)' }}
                   >
                     {selectedPatron.name.charAt(0)}
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedPatron.name}</h3>
-                    <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{selectedPatron.email}</p>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Expires: {selectedPatron.expiryDate}</span>
+                  <div className="patron-identity-group">
+                    <h3 className="patron-full-name">{selectedPatron.name}</h3>
+                    <p className="patron-email-text">{selectedPatron.email}</p>
+                    <span className="patron-card-expiry">Expires: {selectedPatron.expiryDate}</span>
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '0.75rem', borderRadius: '8px' }}>
-                  <div className="barcode-lines">
-                    <div className="barcode-bar" style={{ width: '4px' }}></div>
-                    <div className="barcode-bar" style={{ width: '2px' }}></div>
-                    <div className="barcode-bar" style={{ width: '5px' }}></div>
-                    <div className="barcode-bar" style={{ width: '1px' }}></div>
-                    <div className="barcode-bar" style={{ width: '3px' }}></div>
-                    <div className="barcode-bar" style={{ width: '4px' }}></div>
-                    <div className="barcode-bar" style={{ width: '2px' }}></div>
-                    <div className="barcode-bar" style={{ width: '6px' }}></div>
-                    <div className="barcode-bar" style={{ width: '2px' }}></div>
+                <div className="patron-card-footer">
+                  <div className="patron-barcode-box">
+                    <div className="barcode-lines">
+                      <div className="barcode-bar" style={{ width: '4px' }} />
+                      <div className="barcode-bar" style={{ width: '2px' }} />
+                      <div className="barcode-bar" style={{ width: '5px' }} />
+                      <div className="barcode-bar" style={{ width: '1px' }} />
+                      <div className="barcode-bar" style={{ width: '3px' }} />
+                      <div className="barcode-bar" style={{ width: '4px' }} />
+                      <div className="barcode-bar" style={{ width: '2px' }} />
+                      <div className="barcode-bar" style={{ width: '6px' }} />
+                      <div className="barcode-bar" style={{ width: '2px' }} />
+                    </div>
+                    <div className="mono-text barcode-num">{selectedPatron.cardNum}</div>
                   </div>
-                  <div className="barcode-text">{selectedPatron.cardNum}</div>
+                  <div className="patron-quota-meter">
+                    <span className="quota-label">Current Loans</span>
+                    <span className="quota-val">{selectedPatron.borrowedCount} items</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="modal-footer">
               <button
+                type="button"
                 className="btn btn-secondary"
                 onClick={() => {
                   window.print();
-                  showToast('Printing Library Card...', 'info');
+                  if (showToast) showToast('Sending card to printer...', 'info');
                 }}
               >
                 <Printer size={16} /> Print Card
               </button>
-              <button className="btn btn-primary" onClick={() => setSelectedPatron(null)}>
-                Close
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setSelectedPatron(null)}
+              >
+                Done
               </button>
             </div>
           </div>

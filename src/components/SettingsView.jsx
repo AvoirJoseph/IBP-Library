@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { Settings, Save, Building2, ShieldAlert, Sliders } from 'lucide-react';
+import { Settings, Save, Building2, ShieldAlert, Sparkles, CheckCircle2, Sliders } from 'lucide-react';
 
-export default function SettingsView({ systemPrefs, setSystemPrefs, showToast }) {
+export default function SettingsView({
+  systemPrefs,
+  setSystemPrefs,
+  showToast,
+  activeLayoutSet = 'modern-sleek',
+  onSelectLayoutSet,
+  layoutSets = {}
+}) {
   const [prefs, setPrefs] = useState({ ...systemPrefs });
 
   const handleSave = (e) => {
@@ -107,6 +114,70 @@ export default function SettingsView({ systemPrefs, setSystemPrefs, showToast })
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Unified Whole-App Layout Design Sets Card */}
+        <div className="koha-card" style={{ marginTop: '1.5rem', padding: '1.75rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <Sparkles size={20} className="text-primary" />
+              Unified Library Design Sets (Whole-App Layout Styles)
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+              Select a spacious, modern sleek layout set. Switching sets transforms the global navigation shell, density, card geometry, catalog display, and dashboard layout harmoniously as an integrated whole.
+            </p>
+          </div>
+
+          <div className="settings-layout-sets-grid">
+            {layoutSets && Object.values(layoutSets).map((set) => {
+              const isActive = activeLayoutSet === set.id;
+              return (
+                <div
+                  key={set.id}
+                  className={`settings-layout-card ${isActive ? 'active' : ''}`}
+                  onClick={() => onSelectLayoutSet && onSelectLayoutSet(set.id)}
+                >
+                  <div className="settings-layout-card-header">
+                    <span className="settings-layout-icon">{set.icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <h4 className="settings-layout-name">{set.name}</h4>
+                      <span className="settings-layout-badge">{set.badge}</span>
+                    </div>
+                    {isActive && (
+                      <span className="settings-layout-active-pill">
+                        <CheckCircle2 size={13} /> Active
+                      </span>
+                    )}
+                  </div>
+                  <p className="settings-layout-tagline">{set.tagline}</p>
+                  <div className="settings-layout-specs">
+                    <span className="settings-spec-item">
+                      <strong>Shell:</strong> {set.shellLayout === 'top-nav' ? 'Top Navigation' : set.shellLayout === 'compact-rail' ? '68px Rail' : '240px Sidebar'}
+                    </span>
+                    <span className="settings-spec-item">
+                      <strong>Catalog:</strong> {set.catalogLayout.toUpperCase()}
+                    </span>
+                    <span className="settings-spec-item">
+                      <strong>Dashboard:</strong> {set.dashboardLayout === 'launchpad' ? 'Module Hub' : set.dashboardLayout === 'operational' ? 'Circulation Desk' : 'Analytics'}
+                    </span>
+                    <span className="settings-spec-item">
+                      <strong>Density:</strong> Spacious
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className={`settings-layout-activate-btn ${isActive ? 'is-active' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectLayoutSet && onSelectLayoutSet(set.id);
+                    }}
+                  >
+                    {isActive ? 'Current Design Set' : 'Activate Design Set'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </form>
